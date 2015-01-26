@@ -14,27 +14,34 @@ import random
 
 class Database(object):
 
-    """Class containing a database implementation."""
-
+    dataArray=[]
+    rand=0
+    
     def __init__(self, db_file):
         self.db_file = db_file
-        self.rand = random.Random()
-        self.rand.seed()
-        #
-        # Your code here.
-        #
+        
+        readFile = open(self.db_file)
+        self.dataArray=readFile.read().split('\n%\n')
+        self.dataArray.pop()
+        
+        readFile.close()
+        
         pass
 
     def read(self):
-        """Read a random location in the database."""
-        #
-        # Your code here.
-        #
+        random.seed()
+        self.rand = random.randint(0,len(self.dataArray)-1)
+        
+        return self.dataArray[self.rand]
+        
         pass
 
     def write(self, fortune):
-        """Write a new fortune to the database."""
-        #
-        # Your code here.
-        #
+        
+        self.dataArray.append(fortune)
+        
+        writeFile=open(self.db_file,"a")
+        writeFile.write(fortune + "\n%\n")
+        writeFile.close()
+        
         pass

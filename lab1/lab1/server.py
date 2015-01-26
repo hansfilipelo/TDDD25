@@ -96,6 +96,8 @@ class Request(threading.Thread):
         """ Process a JSON formated request, send it to the database, and
             return the result.
 
+
+
             The request format is:
                 {
                     "method": called_method_name,

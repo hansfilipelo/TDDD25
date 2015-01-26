@@ -43,7 +43,6 @@ opts = parser.parse_args()
 db = Database("dbs/fortune.db")
 
 if not opts.interactive:
-    # Run in the normal mode
     if opts.fortune is not None:
         db.write(opts.fortune)
     else:

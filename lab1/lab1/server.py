@@ -16,6 +16,7 @@ import socket
 import json
 import random
 import argparse
+import "../modules/Common/protocol.py"
 
 import sys
 sys.path.append("../modules")

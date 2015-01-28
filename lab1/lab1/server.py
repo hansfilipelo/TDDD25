@@ -16,7 +16,6 @@ import socket
 import json
 import random
 import argparse
-import "../modules/Common/protocol.py"
 
 import sys
 sys.path.append("../modules")
@@ -116,10 +115,14 @@ class Request(threading.Thread):
                             "args": error_arguments
                         }
                     }
+                    
+                    
         """
         #
         # Your code here.
         #
+        
+        print(request)
         pass
 
     def run(self):
@@ -161,6 +164,7 @@ try:
     while True:
         try:
             conn, addr = server.accept()
+            print("Connection est.")
             req = Request(sync_db, conn, addr)
             print("Serving a request from {0}".format(addr))
             req.start()

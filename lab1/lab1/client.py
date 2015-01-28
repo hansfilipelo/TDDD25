@@ -12,10 +12,8 @@
 """Client reader/writer for a fortune database."""
 
 import sys
-import socket
 import json
 import argparse
-import "../modules/Common/protocol.py"
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments

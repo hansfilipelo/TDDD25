@@ -11,6 +11,7 @@ ERROR = "e"
 # will take in the type of message and the arguments
 # and make it to a sendable json message.
 def create_msg(type, args=[]):
+    
     return ""
 
 
@@ -18,13 +19,4 @@ def create_msg(type, args=[]):
 
 def read_msg(msg):
     return json.load(msg)
-
-
-
-
-
-
-
-
-
 

@@ -123,6 +123,9 @@ class Request(threading.Thread):
         #
         
         print(request)
+        output = 'Internet is cool' + '\n'
+        return output
+        
         pass
 
     def run(self):

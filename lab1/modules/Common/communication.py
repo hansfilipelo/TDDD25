@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket
+import time
 
 class Communication(object):
     
@@ -13,6 +14,7 @@ class Communication(object):
     def connectToServer(self):
         try:
             self.serverSocket = socket.create_connection(self.serverInfo)
+            self.serverSocket.settimeout(1)
         except socket.error:
             print("Connection failed... Damn you world!")
 
@@ -20,6 +22,13 @@ class Communication(object):
         self.serverSocket.send(b'Banan')
 
 
-testObj = Communication(("localhost",48258))
+testObj = Communication(("localhost",10000))
 testObj.connectToServer()
 testObj.test()
+
+time.sleep(5)
+
+out = testObj.serverSocket.recv(4096)
+print("Answer: " + out.decode("utf-8"))
+
+testObj.serverSocket.close()

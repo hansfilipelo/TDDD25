@@ -19,20 +19,20 @@ class Communication(object):
             self.serverStream = self.serverSocket.makefile(mode="rw")
         except socket.error:
             print("Connection failed... Damn you world!")
-
+    
     def test(self):
-        sendData = "\n"
-        self.serverStream.write(sendData)
+        sendData = 'balle'
+        self.serverStream.write('sendData' + '\n')
         self.serverStream.flush()
 
 
-testObj = Communication(("localhost",48507))
+testObj = Communication(("localhost",46089))
 testObj.connectToServer()
 testObj.test()
 
-testObj.connectToServer()
-out = testObj.serverSocket.recv(2048)
+out = testObj.serverStream.readline()
 testObj.serverSocket.close()
-print("Answer: " + out.decode("utf-8"))
+print("Answer: " + out)
 
 testObj.serverSocket.close()
+

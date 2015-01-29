@@ -21,12 +21,15 @@ class Communication(object):
             print("Connection failed... Damn you world!")
 
     def test(self):
-        sendData = "\n"
+        sendData="Ian Adok\n"
+        self.serverStream.write(sendData)
+        self.serverStream.flush()
+        sendData="filip\n"
         self.serverStream.write(sendData)
         self.serverStream.flush()
 
 
-testObj = Communication(("localhost",48507))
+testObj = Communication(("localhost",44444))
 testObj.connectToServer()
 testObj.test()
 

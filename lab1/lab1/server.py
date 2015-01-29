@@ -35,7 +35,7 @@ parallel.\
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument(
     "-p", "--port", metavar="PORT", dest="port", type=int,
-    default=rand.randint(1, 10000) + 40000, choices=range(40001, 50000),
+    default=44444,
     help="Set the port to listen to. Values in [40001, 50000]. "
          "The default value is chosen at random."
 )
@@ -131,9 +131,8 @@ class Request(threading.Thread):
             # Treat the socket as a file stream.
             worker = self.conn.makefile(mode="rw")
             # Read the request in a serialized form (JSON).
-            print("Before read")
-            request = worker.readline()
-            print("Read")
+            request = worker.read()
+            print(request)
             # Process the request.
             result = self.process_request(request)
             # Send the result.

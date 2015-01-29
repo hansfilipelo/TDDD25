@@ -131,9 +131,7 @@ class Request(threading.Thread):
             # Treat the socket as a file stream.
             worker = self.conn.makefile(mode="rw")
             # Read the request in a serialized form (JSON).
-            print("Before read")
             request = worker.readline()
-            print("Read")
             # Process the request.
             result = self.process_request(request)
             # Send the result.

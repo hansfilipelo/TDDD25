@@ -2,11 +2,13 @@
 
 import socket
 import time
+import json
 
 class Communication(object):
     
     serverSocket = ""
     serverInfo = () # (adress, portNumber)
+    serverStream = ""
     
     def __init__(self,inServerInfo):
         self.serverInfo = inServerInfo
@@ -14,21 +16,23 @@ class Communication(object):
     def connectToServer(self):
         try:
             self.serverSocket = socket.create_connection(self.serverInfo)
-            self.serverSocket.settimeout(1)
+            self.serverStream = self.serverSocket.makefile(mode="rw")
         except socket.error:
             print("Connection failed... Damn you world!")
 
     def test(self):
-        self.serverSocket.send(b'Banan')
+        sendData = "\n"
+        self.serverStream.write(sendData)
+        self.serverStream.flush()
 
 
-testObj = Communication(("localhost",10000))
+testObj = Communication(("localhost",48507))
 testObj.connectToServer()
 testObj.test()
 
-time.sleep(5)
-
-out = testObj.serverSocket.recv(4096)
+testObj.connectToServer()
+out = testObj.serverSocket.recv(2048)
+testObj.serverSocket.close()
 print("Answer: " + out.decode("utf-8"))
 
 testObj.serverSocket.close()

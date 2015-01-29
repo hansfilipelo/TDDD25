@@ -123,17 +123,17 @@ class Request(threading.Thread):
         #
         
         print(request)
-        output = 'Internet is cool' + '\n'
+        output = 'Internet is cool'
         return output
-        
-        pass
 
     def run(self):
         try:
-            # Threat the socket as a file stream.
+            # Treat the socket as a file stream.
             worker = self.conn.makefile(mode="rw")
             # Read the request in a serialized form (JSON).
+            print("Before read")
             request = worker.readline()
+            print("Read")
             # Process the request.
             result = self.process_request(request)
             # Send the result.

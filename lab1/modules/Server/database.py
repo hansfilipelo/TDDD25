@@ -7,17 +7,19 @@
 # Copyright 2012 Linkoping University
 # -----------------------------------------------------------------------------
 
-"""Implementation of a simple database class."""
+#"""Implementation of a simple database class."""
 
 import random
-
+from Server.Lock.readWriteLock import ReadWriteLock
 
 class Database(object):
 
     dataArray=[]
     rand=0
+    rwLock = ""
     
     def __init__(self, db_file):
+        self.rwLock = ReadWriteLock()
         self.db_file = db_file
         
         readFile = open(self.db_file)
@@ -26,22 +28,37 @@ class Database(object):
         
         readFile.close()
         
-        pass
-
+    
     def read(self):
-        random.seed()
-        self.rand = random.randint(0,len(self.dataArray)-1)
-        
-        return self.dataArray[self.rand]
-        
-        pass
-
+        try:
+            self.rwLock.read_acquire()
+            
+            random.seed() # Re-seed random number generator
+            self.rand = random.randint(0,len(self.dataArray)-1)
+            outData = self.dataArray[self.rand] # read
+            
+            self.rwLock.read_release()
+            
+            return outData
+        except:
+            return False
+    
     def write(self, fortune):
         
-        self.dataArray.append(fortune)
+        try:
+            self.rwLock.write_acquire()
+            
+            try:
+                self.dataArray.append(fortune)
+                
+                writeFile=open(self.db_file,"a")
+                writeFile.write(fortune + "\n%\n")
+                writeFile.close()
+            except:
+                self.rwLock.write_release()
+                return false
+        except:
+            return false
         
-        writeFile=open(self.db_file,"a")
-        writeFile.write(fortune + "\n%\n")
-        writeFile.close()
-        
-        pass
+        self.rwLock.write_release()
+        return True

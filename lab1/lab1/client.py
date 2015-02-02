@@ -88,7 +88,7 @@ class DatabaseProxy(object):
         try:
             msgFormatCorrect(reply)
             requestDataIsCorrect(reply)
-            return readReply(reply)
+            return loadReply(reply)
         except MsgFormatError as e:
             return "Message format error - " + e.expression + e.message
         except ArgumentError as e:
@@ -105,7 +105,7 @@ class DatabaseProxy(object):
         try:
             msgFormatCorrect(reply)
             requestDataIsCorrect(reply)
-            return readReply(reply)
+            return loadReply(reply)
         except MsgFormatError as e:
             return "Message format error - " + e.expression + e.message
         except ArgumentError as e:

@@ -14,7 +14,8 @@
 import sys
 import json
 import argparse
-sys.path.append("../modules/Common")
+import os
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../modules/Common")
 from communication import *
 from protocols_utilities import *
 

@@ -85,17 +85,16 @@ class DatabaseProxy(object):
         
         reply = self.serverSock.read()
         
-        if msgFormatCorrect(reply) == _OK_:
-            exitCode = requestDataIsCorrect(reply)
-            
-            if exitCode == _OK_:
-                return readReply(reply)
-            if exitCode == _ARGS_ERROR_:
-                print("Argument error!")
-                return
-            print("Method error!")
-            return
-        print("Message format incorrect!")
+        try:
+            msgFormatCorrect(reply)
+            requestDataIsCorrect(reply)
+            return readReply(reply)
+        except MsgFormatError as e:
+            return "Message format error - " + e.expression + e.message
+        except ArgumentError as e:
+            return "Argument error - " + e.expression + e.message
+        except MethodError as e:
+            return "Method error - " + e.expression + e.message
     
     
     def write(self, fortune):
@@ -103,17 +102,16 @@ class DatabaseProxy(object):
         
         reply = self.serverSock.read()
         
-        if msgFormatCorrect(reply) == _OK_:
-            exitCode = requestDataIsCorrect(reply)
-            
-            if exitCode == _OK_:
-                return readReply(reply)
-            if exitCode == _ARGS_ERROR_:
-                print("Argument error!")
-                return
-            print("Method error!")
-            return
-        print("Message format incorrect!")
+        try:
+            msgFormatCorrect(reply)
+            requestDataIsCorrect(reply)
+            return readReply(reply)
+        except MsgFormatError as e:
+            return "Message format error - " + e.expression + e.message
+        except ArgumentError as e:
+            return "Argument error - " + e.expression + e.message
+        except MethodError as e:
+            return "Method error - " + e.expression + e.message
 
 # -----------------------------------------------------------------------------
 # The main program

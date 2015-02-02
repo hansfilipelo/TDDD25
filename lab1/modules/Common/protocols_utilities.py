@@ -1,4 +1,5 @@
 import json
+from errors import *
 
 #//////////////////// Begin of: Global variables ////////////////////////////#
 # Requests methods
@@ -6,12 +7,6 @@ _READ_ = "read"
 _WRITE_ = "write"
 
 _METHOD_LIST_ = [_READ_, _WRITE_]
-
-# Errors in Protocols
-_MSG_FORMAT_ERROR_ = 0
-_METHOD_ERROR_ = 1
-_ARGS_ERROR_ = 2
-_OK_ = 3
 
 # Message components
 _METHOD_ = "method"
@@ -34,16 +29,17 @@ def isJson(json_in):
 def msgFormatCorrect(msg_in, is_request = False):
     dict = isJson(msg_in)
     if dict and ((_METHOD_ in dict) or (_RESULT_ in dict and len(dict)==1) or (_ERROR_ in dict and len(dict)==1)):
-        return _OK_
-    return _MSG_FORMAT_ERROR_
+        return
+    raise MsgFormatError("Received message: ",msg_in)
+    
 
 
 def requestDataIsCorrect(data):
     if data[_METHOD_] in _METHOD_LIST_:
         if data[_METHOD_] == _READ_ and isinstance(data[_ARGS_], str):
-            return _OK_
-        return _ARGS_ERROR_
-    return _METHOD_ERROR_
+            return
+        raise ArgumentError("Received data: ",data)
+    raise MethodError("Received data:", data)
 #//////////////////// End of: Functions to find errors if they exists ///////#
 
 

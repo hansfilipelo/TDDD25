@@ -20,7 +20,6 @@ import argparse
 import sys
 sys.path.append("../modules")
 from Server.database import Database
-from Server.Lock.readWriteLock import ReadWriteLock
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments
@@ -54,26 +53,27 @@ server_address = ("", opts.port)
 
 
 class Server(object):
-
+    
+    db = ""
+    
     """Class that provides synchronous access to the database."""
 
     def __init__(self, db_file):
         self.db = Database(db_file)
-        self.rwlock = ReadWriteLock()
-
+    
     # Public methods
-
+    
     def read(self):
-        #
-        # Your code here.
-        #
-        pass
-
+        
+        return(self.db.read())
+        
+    
     def write(self, fortune):
-        #
-        # Your code here.
-        #
-        pass
+        
+        if self.db.write(fortune):
+            return True
+        
+        return False
 
 
 class Request(threading.Thread):
@@ -88,9 +88,9 @@ class Request(threading.Thread):
         self.conn = conn
         self.addr = addr
         self.daemon = True
-
+    
     # Private methods
-
+    
     def process_request(self, request):
         """ Process a JSON formated request, send it to the database, and
             return the result.
@@ -131,8 +131,7 @@ class Request(threading.Thread):
             # Treat the socket as a file stream.
             worker = self.conn.makefile(mode="rw")
             # Read the request in a serialized form (JSON).
-            request = worker.read()
-            print(request)
+            request = worker.readline()
             # Process the request.
             result = self.process_request(request)
             # Send the result.

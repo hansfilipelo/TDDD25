@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import socket
-import time
 import json
 
 class Communication(object):
@@ -17,25 +16,31 @@ class Communication(object):
         try:
             self.serverSocket = socket.create_connection(self.serverInfo)
             self.serverStream = self.serverSocket.makefile(mode="rw")
+            return True
         except socket.error:
-            print("Connection failed... Damn you world!")
-
+            return False
+    
+    def disconnectFromServer(self):
+        self.serverStream.close()
+        self.serverSocket.close()
+    
+    def send(self,message):
+        try:
+            self.serverStream.write(message + '\n')
+            self.serverStream.flush()
+            return True
+        except:
+            return False
+    
+    def read(self):
+        try:
+            return self.serverStream.readline()
+        except:
+            return False
+    
     def test(self):
-        sendData="Ian Adok\n"
-        self.serverStream.write(sendData)
+        sendData = 'balle'
+        self.serverStream.write(sendData + '\n')
         self.serverStream.flush()
-        sendData="filip\n"
-        self.serverStream.write(sendData)
-        self.serverStream.flush()
+    
 
-
-testObj = Communication(("localhost",44444))
-testObj.connectToServer()
-testObj.test()
-
-testObj.connectToServer()
-out = testObj.serverSocket.recv(2048)
-testObj.serverSocket.close()
-print("Answer: " + out.decode("utf-8"))
-
-testObj.serverSocket.close()

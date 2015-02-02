@@ -13,12 +13,12 @@ import threading
 
 
 class ReadWriteLock(object):
-
+    
     """Reader-Writer lock.
-
+    
     Implements a lock between several threads where some of them only
     read the common resource and some of them also write it.
-
+    
     Rules:
         --  all readers are allowed to read the resource in parallel,
         --  all writers are blocked when there is at least a reader
@@ -26,14 +26,14 @@ class ReadWriteLock(object):
         --  only one writer is allowed to modify the resource and all
             other existing readers and writers are blocked.
     """
-
+    
     def __init__(self):
         self.reader_count = 0
         self.reader_lock = threading.Lock()
         self.writer_lock = threading.Lock()
-
+    
     # Public methods
-
+    
     def read_acquire(self):
         self.reader_lock.acquire()
         if self.reader_count == 0:
@@ -47,9 +47,9 @@ class ReadWriteLock(object):
         if self.reader_count == 0:
             self.writer_lock.release()
         self.reader_lock.release()
-
+    
     def write_acquire(self):
         self.writer_lock.acquire()
-
+    
     def write_release(self):
         self.writer_lock.release()

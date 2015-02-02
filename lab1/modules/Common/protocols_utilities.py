@@ -49,10 +49,29 @@ def createRequest(method, args):
     return json.dumps({_METHOD_: method, _ARGS_: args})
 
 def loadRequest(requestIn):
-    return json.loads(requestIn)
+    try:
+        msgFormatCorrect(requestIn)
+        requestDataIsCorrect(requestIn)
+        return json.loads(requestIn)
+    except MsgFormatError as e:
+        return "Message format error - " + e.expression + e.message
+    except ArgumentError as e:
+        return "Argument error - " + e.expression + e.message
+    except MethodError as e:
+        return "Method error - " + e.expression + e.message
 
-def readReply(replyIn):
-    return json.loads(replyIn)
+def loadReply(replyIn):
+    try:
+        msgFormatCorrect(replyIn)
+        requestDataIsCorrect(replyIn)
+        return json.loads(replyIn)
+    except MsgFormatError as e:
+        return "Message format error - " + e.expression + e.message
+    except ArgumentError as e:
+        return "Argument error - " + e.expression + e.message
+    except MethodError as e:
+        return "Method error - " + e.expression + e.message
+
 
 def createErrorReply(errors_dict):
     return json.dumps({_ERROR_: errors_dict})

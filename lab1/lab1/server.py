@@ -70,10 +70,7 @@ class Server(object):
     
     def write(self, fortune):
         
-        if self.db.write(fortune):
-            return True
-        
-        return False
+        return self.db.write(fortune):
 
 
 class Request(threading.Thread):

@@ -14,6 +14,9 @@
 import sys
 import json
 import argparse
+sys.path.append("../modules/Common")
+from communication import *
+from protocols_utilities import *
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments

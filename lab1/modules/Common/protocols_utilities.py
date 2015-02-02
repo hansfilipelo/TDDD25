@@ -31,7 +31,7 @@ def isJson(json_in):
   return json_out
 
 
-def msgFormatCorrect(msg_in, is_request):
+def msgFormatCorrect(msg_in, is_request = False):
     dict = isJson(msg_in)
     if dict and ((_METHOD_ in dict) or (_RESULT_ in dict and len(dict)==1) or (_ERROR_ in dict and len(dict)==1)):
         return _OK_

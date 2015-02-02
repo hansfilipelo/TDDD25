@@ -16,8 +16,8 @@ import json
 import argparse
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../modules/Common")
+exec(open("../modules/Common/protocols_utilities.py").read())
 from communication import *
-from protocols_utilities import *
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments
@@ -61,25 +61,55 @@ class ComunicationError(Exception):
 
 
 class DatabaseProxy(object):
-
+    
     """Class that simulates the behavior of the database class."""
-
+    
+    serverSock = ""
+    maxRetries = 1
+    
     def __init__(self, server_address):
-        self.address = server_address
-
+        self.serverSock = Communication(server_address)
+        
+        nrOfRetries = 0
+        while not (self.serverSock.connectToServer() and nrOfRetries < self.maxRetries):
+            nrOfRetries += 1
+        
+        if nrOfRetries >= self.maxRetries:
+            print("Failed to connect to server")
+            sys.exit(1)
+    
     # Public methods
-
+    
     def read(self):
-        #
-        # Your code here.
-        #
-        pass
-
+        self.serverSock.send(createRequest(_READ_,""))
+        
+        reply = self.serverSock.read()
+        
+        if msgFormatCorrect(reply) == _OK_:
+            exitCode = requestDataIsCorrect(reply)
+            
+            if exitCode == _OK_:
+                return readReply(reply)
+            if exitCode == _ARGS_ERROR_:
+                print("Argument error!")
+            print("Method error!")
+        print("Message format incorrect!")
+    
+    
     def write(self, fortune):
-        #
-        # Your code here.
-        #
-        pass
+        self.serverSock.send(createRequest(_WRITE_,fortune))
+        
+        reply = self.serverSock.read()
+        
+        if msgFormatCorrect(reply) == _OK_:
+            exitCode = requestDataIsCorrect(reply)
+            
+            if exitCode == _OK_:
+                return readReply(reply)
+            if exitCode == _ARGS_ERROR_:
+                print("Argument error!")
+            print("Method error!")
+        print("Message format incorrect!")
 
 # -----------------------------------------------------------------------------
 # The main program

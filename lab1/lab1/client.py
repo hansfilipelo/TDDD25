@@ -92,7 +92,9 @@ class DatabaseProxy(object):
                 return readReply(reply)
             if exitCode == _ARGS_ERROR_:
                 print("Argument error!")
+                return
             print("Method error!")
+            return
         print("Message format incorrect!")
     
     
@@ -108,7 +110,9 @@ class DatabaseProxy(object):
                 return readReply(reply)
             if exitCode == _ARGS_ERROR_:
                 print("Argument error!")
+                return
             print("Method error!")
+            return
         print("Message format incorrect!")
 
 # -----------------------------------------------------------------------------

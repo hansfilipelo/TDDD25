@@ -11,6 +11,7 @@ _METHOD_ = "method"
 _ARGS_ = "args"
 _RESULT_ = "result"
 _ERROR_ = "error"
+_ERROR_NAME_ = "name"
 #//////////////////// End of: Global variables //////////////////////////////#
 
 
@@ -67,11 +68,11 @@ def msgFormatCorrect(msg_in, is_request = False):
 
 
 def requestDataIsCorrect(data):
-    if data[_METHOD_] in _METHOD_LIST_:
+    if (data[_METHOD_]) in _METHOD_LIST_:
         if data[_METHOD_] == _READ_ or data[_METHOD_] == _WRITE_ and isinstance(data[_ARGS_], str):
             return
-        raise ArgumentError("Received data: ",data)
-    raise MethodError("Received data:", data)
+        raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
+    raise MethodError(str(data[_METHOD_]), "Arguemnt must be wrong ofc!!")
 #//////////////////// End of: Functions to find errors if they exists ///////#
 
 
@@ -83,8 +84,10 @@ def createRequest(method, args=0):
     return json.dumps({_METHOD_: method})
 
 def loadRequest(requestIn):
+    print("We are here 1")
     msgFormatCorrect(requestIn, True)
     data = json.loads(requestIn)
+    print("We are here 2")
     requestDataIsCorrect(data)
     return data
 
@@ -96,8 +99,8 @@ def loadReply(replyIn):
     return data
 
 
-def createErrorReply(error_dict):
-    return json.dumps({_ERROR_: errors_dict})
+def createErrorReply(errorClass, argsIn):
+    return json.dumps({_ERROR_: {_ERROR_NAME_ : errorClass, _ARGS_ : argsIn}})
 
 def createResultReply(method_result):
     return json.dumps({_RESULT_: method_result})

@@ -105,11 +105,11 @@ class Request(threading.Thread):
 
 
         except MsgFormatError as e:
-            return "format error"
+            return createErrorReply(type(e).__name__, e.expression+e.message)
         except ArgumentError as e:
-            return "Argument error - " + e.expression + e.message
+            return createErrorReply(type(e).__name__, e.expression+e.message)
         except MethodError as e:
-            return "Method error - " + e.expression + e.message
+            return createErrorReply(type(e).__name__, e.expression+e.message)
 
         return 'Wuuut??'
 

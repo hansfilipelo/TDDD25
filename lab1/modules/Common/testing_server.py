@@ -39,12 +39,15 @@ def testErrorRequests(requestIn):
     print("----------------------------------------------\n")
 
 
-testRequestToServer(_READ_)
-testRequestToServer(_READ_)
+#testRequestToServer(_READ_)
+#testRequestToServer(_READ_)
 
-testRequestToServer(_WRITE_, "Test Fortune to write")
+#testRequestToServer(_WRITE_, "Test Fortune to write")
 
+# Format errors
+#testErrorRequests("{method, test}")
+#testErrorRequests('{"nethod" : "read"}')
 
-testErrorRequests("{method, test}")
-testErrorRequests('{"nethod" : "read"}')
-testErrorRequests('{"method" : "rsead"}')
+# Method and argument error
+testErrorRequests('{"method" : "reas"}')
+testErrorRequests('{"method" : "write", "args": 1}')

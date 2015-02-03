@@ -6,11 +6,13 @@ _WRITE_ = "write"
 
 _METHOD_LIST_ = [_READ_, _WRITE_]
 
+# Result answers
+_RESULT_ = "result"
+_ERROR_ = "error"
+
 # Message components
 _METHOD_ = "method"
 _ARGS_ = "args"
-_RESULT_ = "result"
-_ERROR_ = "error"
 _ERROR_NAME_ = "name"
 #//////////////////// End of: Global variables //////////////////////////////#
 
@@ -61,8 +63,9 @@ def isJson(json_in):
 
 def msgFormatCorrect(msg_in, is_request = False):
     dict = isJson(msg_in)
-    if dict and ((_METHOD_ in dict) or (_RESULT_ in dict and len(dict)==1) or (_ERROR_ in dict and len(dict)==1)):
-        return
+    if dict:
+        if dict and ((_METHOD_ in dict) or (_RESULT_ in dict and len(dict)==1) or (_ERROR_ in dict and len(dict)==1)):
+            return
     raise MsgFormatError("Received message: ",msg_in)
     
 
@@ -73,6 +76,13 @@ def requestDataIsCorrect(data):
             return
         raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
     raise MethodError(str(data[_METHOD_]), "Arguemnt must be wrong ofc!!")
+
+def resultDataIsCorrect(data):
+    if _ERROR_ in data:
+        raise data[_ERROR_][_ERROR_NAME_](data[_ERROR_][_ARGS_])
+    if not isinstance(data[_RESULT_], str):
+        raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
+    return
 #//////////////////// End of: Functions to find errors if they exists ///////#
 
 
@@ -92,11 +102,10 @@ def loadRequest(requestIn):
     return data
 
 def loadReply(replyIn):
-    print(replyIn)
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
-    requestDataIsCorrect(data)
-    return data
+    resultDataIsCorrect(data)
+    return data[_RESULT_]
 
 
 def createErrorReply(errorClass, argsIn):

@@ -87,7 +87,16 @@ class DatabaseProxy(object):
     
     def read(self):
         self.serverSock.send(createRequest(_READ_,""))
-        return loadReply(self.serverSock.read())
+        
+        try:    
+            return loadReply(self.serverSock.read())
+        except MsgFormatError as e:
+            return type(e).__name__ + ": " + e.expression+e.message
+        except ArgumentError as e:
+            return type(e).__name__ + ": " + e.expression+e.message
+        except MethodError as e:
+            return type(e).__name__ + ": " + e.expression+e.message
+            
     
     
     def write(self, fortune):

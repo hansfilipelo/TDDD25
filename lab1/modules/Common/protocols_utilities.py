@@ -1,6 +1,4 @@
 import json
-from errors import *
-
 #//////////////////// Begin of: Global variables ////////////////////////////#
 # Requests methods
 _READ_ = "read"
@@ -14,6 +12,40 @@ _ARGS_ = "args"
 _RESULT_ = "result"
 _ERROR_ = "error"
 #//////////////////// End of: Global variables //////////////////////////////#
+
+
+
+#//////////////////// Begin of: Error classes ////////////////////////////#
+class Error(Exception):
+    """Base class for exceptions in protocol.
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+    pass
+
+class MsgFormatError(Error):
+    # Exception raised for errors in the message format.
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
+
+class MethodError(Error):
+    # Exception raised for using undefined method.
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
+class ArgumentError(Error):
+    # Exception raised for using wrong arguments for a given method.
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+#//////////////////// End of: Error classes //////////////////////////////#
 
 
 
@@ -36,7 +68,7 @@ def msgFormatCorrect(msg_in, is_request = False):
 
 def requestDataIsCorrect(data):
     if data[_METHOD_] in _METHOD_LIST_:
-        if data[_METHOD_] == _READ_ and isinstance(data[_ARGS_], str):
+        if data[_METHOD_] == _READ_ or data[_METHOD_] == _WRITE_ and isinstance(data[_ARGS_], str):
             return
         raise ArgumentError("Received data: ",data)
     raise MethodError("Received data:", data)
@@ -45,35 +77,26 @@ def requestDataIsCorrect(data):
 
 
 #//////////////////// Begin of: Functions to create or load request/reply ///#
-def createRequest(method, args):
-    return json.dumps({_METHOD_: method, _ARGS_: args})
+def createRequest(method, args=0):
+    if args:
+        return json.dumps({_METHOD_: method, _ARGS_: args})
+    return json.dumps({_METHOD_: method})
 
 def loadRequest(requestIn):
-    try:
-        msgFormatCorrect(requestIn)
-        requestDataIsCorrect(requestIn)
-        return json.loads(requestIn)
-    except MsgFormatError as e:
-        return "Message format error - " + e.expression + e.message
-    except ArgumentError as e:
-        return "Argument error - " + e.expression + e.message
-    except MethodError as e:
-        return "Method error - " + e.expression + e.message
+    msgFormatCorrect(requestIn, True)
+    data = json.loads(requestIn)
+    requestDataIsCorrect(data)
+    return data
 
 def loadReply(replyIn):
-    try:
-        msgFormatCorrect(replyIn)
-        requestDataIsCorrect(replyIn)
-        return json.loads(replyIn)
-    except MsgFormatError as e:
-        return "Message format error - " + e.expression + e.message
-    except ArgumentError as e:
-        return "Argument error - " + e.expression + e.message
-    except MethodError as e:
-        return "Method error - " + e.expression + e.message
+    print(replyIn)
+    msgFormatCorrect(replyIn)
+    data = json.loads(replyIn)
+    requestDataIsCorrect(data)
+    return data
 
 
-def createErrorReply(errors_dict):
+def createErrorReply(error_dict):
     return json.dumps({_ERROR_: errors_dict})
 
 def createResultReply(method_result):

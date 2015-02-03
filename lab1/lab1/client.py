@@ -12,12 +12,17 @@
 """Client reader/writer for a fortune database."""
 
 import sys
-import json
 import argparse
 import os
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../modules/Common")
-exec(open("../modules/Common/protocols_utilities.py").read())
-from communication import *
+
+_PATH_TO_MODULES_ = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "modules")
+_PATH_TO_SERVER_ = os.path.join(_PATH_TO_MODULES_, "Server")
+_PATH_TO_COMMON_ = os.path.join(_PATH_TO_MODULES_, "Common")
+
+sys.path.append(_PATH_TO_MODULES_)
+from Common.communication import *
+
+exec(open(os.path.join(_PATH_TO_COMMON_, "protocols_utilities.py")).read())
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments
@@ -82,13 +87,11 @@ class DatabaseProxy(object):
     
     def read(self):
         self.serverSock.send(createRequest(_READ_,""))
-        
         return loadReply(self.serverSock.read())
     
     
     def write(self, fortune):
         self.serverSock.send(createRequest(_WRITE_,fortune))
-        
         return loadReply(self.serverSock.read())
 
 # -----------------------------------------------------------------------------

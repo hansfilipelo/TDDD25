@@ -13,13 +13,20 @@
 
 import threading
 import socket
-import json
 import random
 import argparse
-
+import os
 import sys
-sys.path.append("../modules")
+
+_PATH_TO_MODULES_ = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "modules")
+_PATH_TO_SERVER_ = os.path.join(_PATH_TO_MODULES_, "Server")
+_PATH_TO_COMMON_ = os.path.join(_PATH_TO_MODULES_, "Common")
+
+sys.path.append(_PATH_TO_MODULES_)
 from Server.database import Database
+from Common.communication import *
+exec(open(os.path.join(_PATH_TO_COMMON_, "protocols_utilities.py")).read())
+
 
 # -----------------------------------------------------------------------------
 # Initialize and read the command line arguments
@@ -62,14 +69,11 @@ class Server(object):
         self.db = Database(db_file)
     
     # Public methods
-    
     def read(self):
-        
         return(self.db.read())
-        
-    
+
     def write(self, fortune):
-        
+        print("testing2")
         return self.db.write(fortune)
 
 
@@ -86,42 +90,28 @@ class Request(threading.Thread):
         self.addr = addr
         self.daemon = True
     
-    # Private methods
-    
     def process_request(self, request):
-        """ Process a JSON formated request, send it to the database, and
-            return the result.
+        try:
+            requestData = loadRequest(request)
+
+            if requestData[_METHOD_] == _READ_:
+                return self.db_server.read()
+
+            if requestData[_METHOD_] == _WRITE_:
+                result = self.db_server.write(requestData[_ARGS_])
+                if not result:
+                    return "Database error"
+                return "Wrote fortion to database"
 
 
+        except MsgFormatError as e:
+            return "format error"
+        except ArgumentError as e:
+            return "Argument error - " + e.expression + e.message
+        except MethodError as e:
+            return "Method error - " + e.expression + e.message
 
-            The request format is:
-                {
-                    "method": called_method_name,
-                    "args": called_method_arguments
-                }
-
-            The returned result is a JSON of the following format:
-                -- in case of no error:
-                    {
-                        "result": called_method_result
-                    }
-                -- in case of error:
-                    {
-                        "error": {
-                            "name": error_class_name,
-                            "args": error_arguments
-                        }
-                    }
-                    
-                    
-        """
-        #
-        # Your code here.
-        #
-        
-        print(request)
-        output = 'Internet is cool'
-        return output
+        return 'Wuuut??'
 
     def run(self):
         try:

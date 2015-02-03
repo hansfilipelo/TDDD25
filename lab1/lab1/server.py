@@ -73,7 +73,6 @@ class Server(object):
         return(self.db.read())
 
     def write(self, fortune):
-        print("testing2")
         return self.db.write(fortune)
 
 
@@ -95,21 +94,23 @@ class Request(threading.Thread):
             requestData = loadRequest(request)
 
             if requestData[_METHOD_] == _READ_:
-                return createResultReply(self.db_server.read())
-
+                try:
+                    return createResultReply(self.db_server.read())
+                except DatabaseError as e:
+                    return createErrorReply(type(e).__name__,"")
+            
             if requestData[_METHOD_] == _WRITE_:
                 result = self.db_server.write(requestData[_ARGS_])
-                if not result:
-                    return "Database error"
-                return "Wrote fortion to database"
-
-
+                return createResultReply("Wrote fortune to database.")
+        
         except MsgFormatError as e:
             return createErrorReply(type(e).__name__, e.expression+e.message)
         except ArgumentError as e:
             return createErrorReply(type(e).__name__, e.expression+e.message)
         except MethodError as e:
             return createErrorReply(type(e).__name__, e.expression+e.message)
+        except DatabaseError as e:
+            return createErrorReply(type(e).__name__)
 
         return 'Wuuut??'
 

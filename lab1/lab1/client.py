@@ -74,34 +74,64 @@ class DatabaseProxy(object):
     
     def __init__(self, server_address):
         self.serverSock = Communication(server_address)
-        
+    
+    # Public methods
+    
+    def read(self):
+        # Connect to server
         nrOfRetries = 0
         while not (self.serverSock.connectToServer() and nrOfRetries < self.maxRetries):
             nrOfRetries += 1
         
         if nrOfRetries >= self.maxRetries:
             print("Failed to connect to server")
-            sys.exit(1)
-    
-    # Public methods
-    
-    def read(self):
-        self.serverSock.send(createRequest(_READ_,""))
+            return
         
-        try:    
-            return loadReply(self.serverSock.read())
+        # Send to socket
+        while not self.serverSock.send(createRequest(_READ_,"")):
+            pass
+        
+        try:
+            result = loadReply(self.serverSock.read())
+            if not result:
+                return "No answer from server"
+            self.serverSock.disconnectFromServer()
+            return result
         except MsgFormatError as e:
-            return type(e).__name__ + ": " + e.expression+e.message
+            return type(e).__name__ + ": " + str(e.expression+e.message)
         except ArgumentError as e:
-            return type(e).__name__ + ": " + e.expression+e.message
+            return type(e).__name__ + ": " + str(e.expression+e.message)
         except MethodError as e:
-            return type(e).__name__ + ": " + e.expression+e.message
+            return type(e).__name__ + ": " + str(e.expression+e.message)
             
     
     
     def write(self, fortune):
-        self.serverSock.send(createRequest(_WRITE_,fortune))
-        return loadReply(self.serverSock.read())
+        # Connect to server
+        nrOfRetries = 0
+        while not (self.serverSock.connectToServer() and nrOfRetries < self.maxRetries):
+            nrOfRetries += 1
+        
+        if nrOfRetries >= self.maxRetries:
+            print("Failed to connect to server")
+            return
+        
+        while not self.serverSock.send(createRequest(_WRITE_,fortune)):
+            pass
+        try:
+            result = loadReply(self.serverSock.read())
+            if not result:
+                return "No answer from server"
+            self.serverSock.disconnectFromServer()
+            return result
+        except MsgFormatError as e:
+            return type(e).__name__ + ": " + str(e.expression+e.message)
+        except ArgumentError as e:
+            return type(e).__name__ + ": " + str(e.expression+e.message)
+        except MethodError as e:
+            return type(e).__name__ + ": " + str(e.expression+e.message)
+        except DatabaseError as e:
+            return type(e).__name__
 
 # -----------------------------------------------------------------------------
 # The main program
@@ -137,6 +167,6 @@ Choose one of the following commands:
             print(db.read())
         elif (len(command) > 1 and command[0] == "w" and
                 command[1] in [" ", "\t"]):
-            db.write(command[2:].strip())
+            print(db.write(command[2:].strip()))
         elif command == "h":
             menu()

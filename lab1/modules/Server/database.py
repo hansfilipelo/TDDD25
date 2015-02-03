@@ -33,15 +33,18 @@ class Database(object):
         try:
             self.rwLock.read_acquire()
             
-            random.seed() # Re-seed random number generator
-            self.rand = random.randint(0,len(self.dataArray)-1)
-            outData = self.dataArray[self.rand] # read
-            
-            self.rwLock.read_release()
-            
-            return outData
+            try:
+                random.seed() # Re-seed random number generator
+                self.rand = random.randint(0,len(self.dataArray)-1)
+                outData = self.dataArray[self.rand] # read
+                
+                self.rwLock.read_release()
+                return outData
+            except:
+                self.rwLock.read_release()
+                raise DatabaseError()
         except:
-            return False
+            raise DatabaseError()
     
     def write(self, fortune):
         
@@ -54,11 +57,11 @@ class Database(object):
                 writeFile=open(self.db_file,"a")
                 writeFile.write(fortune + "\n%\n")
                 writeFile.close()
+                
+                self.rwLock.write_release()
+                return
             except:
                 self.rwLock.write_release()
-                return false
+                raise DatabaseError()
         except:
-            return false
-        
-        self.rwLock.write_release()
-        return True
+            raise DatabaseError()

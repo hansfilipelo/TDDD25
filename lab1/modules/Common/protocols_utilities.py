@@ -48,6 +48,11 @@ class ArgumentError(Error):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
+
+class DatabaseError(Error):
+    
+    pass
+
 #//////////////////// End of: Error classes //////////////////////////////#
 
 
@@ -75,7 +80,7 @@ def requestDataIsCorrect(data):
         if data[_METHOD_] == _READ_ or data[_METHOD_] == _WRITE_ and isinstance(data[_ARGS_], str):
             return
         raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
-    raise MethodError(str(data[_METHOD_]), "Arguemnt must be wrong ofc!!")
+    raise MethodError(str(data[_METHOD_]), "Argument must be wrong ofc!!")
 
 def resultDataIsCorrect(data):
     if _ERROR_ in data:
@@ -94,10 +99,8 @@ def createRequest(method, args=0):
     return json.dumps({_METHOD_: method})
 
 def loadRequest(requestIn):
-    print("We are here 1")
     msgFormatCorrect(requestIn, True)
     data = json.loads(requestIn)
-    print("We are here 2")
     requestDataIsCorrect(data)
     return data
 

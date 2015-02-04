@@ -41,7 +41,7 @@ parallel.\
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument(
     "-p", "--port", metavar="PORT", dest="port", type=int,
-    default=44445,
+    default=44444,
     help="Set the port to listen to. Values in [40001, 50000]. "
          "The default value is chosen at random."
 )

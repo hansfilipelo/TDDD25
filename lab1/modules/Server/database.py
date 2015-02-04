@@ -11,6 +11,7 @@
 
 import random
 from Server.Lock.readWriteLock import ReadWriteLock
+from Common.protocols_utilities import DatabaseError
 
 class Database(object):
 

@@ -93,8 +93,6 @@ class DatabaseProxy(object):
         
         try:
             result = loadReply(self.serverSock.read())
-            if not result:
-                return "No answer from server"
             self.serverSock.disconnectFromServer()
             return result
         except MsgFormatError as e:
@@ -103,6 +101,8 @@ class DatabaseProxy(object):
             return type(e).__name__ + ": " + str(e.expression+e.message)
         except MethodError as e:
             return type(e).__name__ + ": " + str(e.expression+e.message)
+        except DatabaseError as e:
+            return type(e).__name__
             
     
     

@@ -9,6 +9,7 @@ _METHOD_LIST_ = [_READ_, _WRITE_]
 # Result answers
 _RESULT_ = "result"
 _ERROR_ = "error"
+_NAME_ = "name"
 
 # Message components
 _METHOD_ = "method"
@@ -19,37 +20,20 @@ _ERROR_NAME_ = "name"
 
 
 #//////////////////// Begin of: Error classes ////////////////////////////#
-class Error(Exception):
-    """Base class for exceptions in protocol.
-    Attributes:
-        expression -- input expression in which the error occurred
-        message -- explanation of the error
-    """
+
+class MsgFormatError(Exception):
+    # Exception raised for errors in the message format
     pass
 
-class MsgFormatError(Error):
-    # Exception raised for errors in the message format.
-
-    def __init__(self, expression, message):
-        self.expression = expression
-        self.message = message
-
-
-class MethodError(Error):
+class MethodError(Exception):
     # Exception raised for using undefined method.
+    pass
 
-    def __init__(self, expression, message):
-        self.expression = expression
-        self.message = message
-
-class ArgumentError(Error):
+class ArgumentError(Exception):
     # Exception raised for using wrong arguments for a given method.
+    pass
 
-    def __init__(self, expression, message):
-        self.expression = expression
-        self.message = message
-
-class DatabaseError(Error):
+class DatabaseError(Exception):
     
     pass
 
@@ -69,25 +53,9 @@ def isJson(json_in):
 def msgFormatCorrect(msg_in, is_request = False):
     dict = isJson(msg_in)
     if dict:
-        if dict and ((_METHOD_ in dict) or (_RESULT_ in dict and len(dict)==1) or (_ERROR_ in dict and len(dict)==1)):
-            return
-    raise MsgFormatError("Received message: ",msg_in)
+        return
+    raise MsgFormatError("Message not Json, received message: ",msg_in)
     
-
-
-def requestDataIsCorrect(data):
-    if (data[_METHOD_]) in _METHOD_LIST_:
-        if data[_METHOD_] == _READ_ or data[_METHOD_] == _WRITE_ and isinstance(data[_ARGS_], str):
-            return
-        raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
-    raise MethodError(str(data[_METHOD_]), "Argument must be wrong ofc!!")
-
-def resultDataIsCorrect(data):
-    if _ERROR_ in data:
-        raise data[_ERROR_][_ERROR_NAME_](data[_ERROR_][_ARGS_])
-    if not isinstance(data[_RESULT_], str):
-        raise ArgumentError(str(data[_METHOD_]), str(data[_ARGS_]))
-    return
 #//////////////////// End of: Functions to find errors if they exists ///////#
 
 
@@ -101,14 +69,14 @@ def createRequest(method, args=None):
 def loadRequest(requestIn):
     msgFormatCorrect(requestIn, True)
     data = json.loads(requestIn)
-    requestDataIsCorrect(data)
     return data
 
 def loadReply(replyIn):
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
-    resultDataIsCorrect(data)
-    return data[_RESULT_]
+    if _RESULT_ in data:
+        return data[_RESULT_]
+    raise getattr(sys.modules[__name__], data[_ERROR_][_NAME_])(data[_ERROR_][_ARGS_])
 
 
 def createErrorReply(errorClass, argsIn):

@@ -95,15 +95,9 @@ class DatabaseProxy(object):
             result = loadReply(self.serverSock.read())
             self.serverSock.disconnectFromServer()
             return result
-        except MsgFormatError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except ArgumentError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except MethodError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except DatabaseError as e:
-            return type(e).__name__
-            
+        except Exception as e:
+            return [type(e).__name__, e.args]
+        
     
     
     def write(self, fortune):
@@ -124,14 +118,8 @@ class DatabaseProxy(object):
                 return "No answer from server"
             self.serverSock.disconnectFromServer()
             return result
-        except MsgFormatError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except ArgumentError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except MethodError as e:
-            return type(e).__name__ + ": " + str(e.expression+e.message)
-        except DatabaseError as e:
-            return type(e).__name__
+        except Exception as e:
+            return [type(e).__name__, e.args]
 
 # -----------------------------------------------------------------------------
 # The main program

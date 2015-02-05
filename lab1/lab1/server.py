@@ -41,7 +41,7 @@ parallel.\
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument(
     "-p", "--port", metavar="PORT", dest="port", type=int,
-    default=44444,
+    default=44445   ,
     help="Set the port to listen to. Values in [40001, 50000]. "
          "The default value is chosen at random."
 )
@@ -92,14 +92,13 @@ class Request(threading.Thread):
     def process_request(self, request):
         try:
             requestData = loadRequest(request)
-
             
             if requestData.get(_ARGS_) == None:
                 return createResultReply(getattr(self.db_server, (requestData[_METHOD_]))())
             return createResultReply(getattr(self.db_server, (requestData[_METHOD_]))(requestData[_ARGS_]))
             
         except Exception as e:
-            return createErrorReply(type(e).__name__, e.args())
+            return createErrorReply(str(type(e).__name__), e.args)
 
     def run(self):
         try:

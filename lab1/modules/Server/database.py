@@ -60,7 +60,7 @@ class Database(object):
                 writeFile.close()
                 
                 self.rwLock.write_release()
-                return
+                return "Wrote fortune to database."
             except:
                 self.rwLock.write_release()
                 raise DatabaseError()

@@ -69,15 +69,18 @@ def createRequest(method, args=None):
 def loadRequest(requestIn):
     msgFormatCorrect(requestIn, True)
     data = json.loads(requestIn)
-    return data
+    if _METHOD_ in data:
+        return data 
+    raise MethodError("Message is incorrect, recieved message: ", data)
 
 def loadReply(replyIn):
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
     if _RESULT_ in data:
         return data[_RESULT_]
-    raise getattr(sys.modules[__name__], data[_ERROR_][_NAME_])(data[_ERROR_][_ARGS_])
-
+    if _ERROR_ in data:
+        raise getattr(sys.modules[__name__], data[_ERROR_][_NAME_])(data[_ERROR_][_ARGS_])
+    raise MethodError("Message is incorrect, recieved message: ", data)
 
 def createErrorReply(errorClass, argsIn):
     return json.dumps({_ERROR_: {_ERROR_NAME_ : errorClass, _ARGS_ : argsIn}})

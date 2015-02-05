@@ -88,7 +88,7 @@ class DatabaseProxy(object):
             return
         
         # Send to socket
-        while not self.serverSock.send(createRequest(_READ_,"")):
+        while not self.serverSock.send(createRequest(_READ_)):
             pass
         
         try:

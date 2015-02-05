@@ -93,26 +93,13 @@ class Request(threading.Thread):
         try:
             requestData = loadRequest(request)
 
-            if requestData[_METHOD_] == _READ_:
-                try:
-                    return createResultReply(self.db_server.read())
-                except DatabaseError as e:
-                    return createErrorReply(type(e).__name__,"")
             
-            if requestData[_METHOD_] == _WRITE_:
-                result = self.db_server.write(requestData[_ARGS_])
-                return createResultReply("Wrote fortune to database.")
-        
-        except MsgFormatError as e:
-            return createErrorReply(type(e).__name__, e.expression+e.message)
-        except ArgumentError as e:
-            return createErrorReply(type(e).__name__, e.expression+e.message)
-        except MethodError as e:
-            return createErrorReply(type(e).__name__, e.expression+e.message)
-        except DatabaseError as e:
-            return createErrorReply(type(e).__name__)
-
-        return 'Wuuut??'
+            if requestData.get(_ARGS_) == None:
+                return createResultReply(getattr(self.db_server, (requestData[_METHOD_]))())
+            return createResultReply(getattr(self.db_server, (requestData[_METHOD_]))(requestData[_ARGS_]))
+            
+        except Exception as e:
+            return createErrorReply(type(e).__name__, e.args())
 
     def run(self):
         try:
@@ -160,4 +147,5 @@ try:
         except socket.error:
             continue
 except KeyboardInterrupt:
-    pass
+    server.close()
+    sys.exit(1)

@@ -93,7 +93,7 @@ def resultDataIsCorrect(data):
 
 
 #//////////////////// Begin of: Functions to create or load request/reply ///#
-def createRequest(method, args=0):
+def createRequest(method, args=None):
     if args:
         return json.dumps({_METHOD_: method, _ARGS_: args})
     return json.dumps({_METHOD_: method})

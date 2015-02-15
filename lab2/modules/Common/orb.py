@@ -10,6 +10,12 @@
 import threading
 import socket
 import json
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from nameServiceLocation import name_service_address
+from communication import Communication
+from protocols_utilities import *
 
 """Object Request Broker
 
@@ -44,12 +50,13 @@ class Stub(object):
 
     def __init__(self, address):
         self.address = tuple(address)
+        self.communicator = Communication(name_service_address)
 
     def _rmi(self, method, *args):
-        #
-        # Your code here.
-        #
-        pass
+        
+        self.communicator.connectToServer()
+        self.communicator.send(createRequest(method,args))
+        return loadReply(self.communicator.read())
 
     def __getattr__(self, attr):
         """Forward call to name over the network at the given address."""
@@ -70,9 +77,9 @@ class Request(threading.Thread):
         self.daemon = True
 
     def run(self):
-        #
-        # Your code here.
-        #
+        
+        
+        
         pass
 
 
@@ -114,17 +121,17 @@ class Peer:
         self.skeleton = Skeleton(self, self.address)
         self.name_service_address = self._get_external_interface(ns_address)
         self.name_service = Stub(self.name_service_address)
-
+        
     # Private methods
-
+    
     def _get_external_interface(self, address):
         """ Determine the external interface associated with a host name.
-
+        
         This function translates the machine's host name into its the
         machine's external address, not into '127.0.0.1'.
-
+        
         """
-
+        
         addr_name = address[0]
         if addr_name != "":
             addrs = socket.gethostbyname_ex(addr_name)[2]
@@ -138,22 +145,21 @@ class Peer:
         addr = list(address)
         addr[0] = addr_name
         return tuple(addr)
-
+        
     # Public methods
-
+    
     def start(self):
         """Start the communication interface."""
-
+        
         self.skeleton.start()
-        self.id, self.hash = self.name_service.register(self.type,
-                                                        self.address)
-
+        self.id, self.hash = self.name_service.register(self.type,self.address)
+    
     def destroy(self):
         """Unregister the object before removal."""
-
+        
         self.name_service.unregister(self.id, self.type, self.hash)
-
+    
     def check(self):
         """Checking to see if the object is still alive."""
-
+        
         return (self.id, self.type)

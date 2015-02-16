@@ -37,7 +37,16 @@ class Communication(object):
             return self.serverStream.readline()
         except:
             return False
-
+    
+    def listen(self):
+        self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.serverStream = self.serverSocket.makefile(mode="rw")
+        self.serverSocket.bind(self.serverInfo)
+        self.serverSocket.listen(1)
+        
+    def accept(self):
+        return self.serverSocket.accept()
+    
     def test(self):
         sendData = '{"method": "read"}'
         self.serverStream.write(sendData + '\n')

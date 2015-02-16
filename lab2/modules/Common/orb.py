@@ -97,16 +97,22 @@ class Skeleton(threading.Thread):
         self.address = address
         self.owner = owner
         self.daemon = True
-        #
-        # Your code here.
-        #
-        pass
+        
+        self.serverSocket = Communication(address)
+        self.serverSocket.listen()
+        
 
     def run(self):
-        #
-        # Your code here.
-        #
-        pass
+        while True:
+            try:
+                conn, addr = self.serverSocket.accept()
+                req = Request(self.owner, conn, addr)
+                print("Serving request from %s", addr)
+            except Exception as e:
+                print [type(e).__name__, e.args]
+            
+        
+    
 
 
 class Peer:

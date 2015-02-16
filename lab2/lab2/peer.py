@@ -93,7 +93,7 @@ This peer:
 p.display_peers()
 
 # Waiting for a key press.
-sys.stdout.write("Waiting for a key press...")
+sys.stdout.write("Waiting for a key press... \n")
 input()
 
 # Kill our peer object.

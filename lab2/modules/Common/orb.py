@@ -78,9 +78,12 @@ class Request(threading.Thread):
 
     def run(self):
         
-        
-        
-        pass
+        try: 
+            print("Request initiated")
+            
+            print(loadReply(self.conn.read()))
+        except Exception as e:
+            print([type(e).__name__, e.args])
 
 
 class Skeleton(threading.Thread):
@@ -106,8 +109,9 @@ class Skeleton(threading.Thread):
         while True:
             try:
                 conn, addr = self.serverSocket.accept()
-                req = Request(self.owner, conn, addr)
+                req = Request(self.owner, self.serverSocket, addr)
                 print("Serving request from %s", addr)
+                req.start()
             except Exception as e:
                 print [type(e).__name__, e.args]
             

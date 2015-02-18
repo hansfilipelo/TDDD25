@@ -25,27 +25,22 @@ class Communication(object):
         self.serverSocket.close()
 
     def send(self,message):
-        try:
-            self.serverStream.write(message + '\n')
-            self.serverStream.flush()
-            return True
-        except:
-            return False
+        
+        self.serverStream.write(message + '\n')
+        self.serverStream.flush()
 
     def read(self):
-        try:
-            return self.serverStream.readline()
-        except:
-            return False
+        return self.serverStream.readline()
     
     def listen(self):
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.serverStream = self.serverSocket.makefile(mode="rw")
         self.serverSocket.bind(self.serverInfo)
         self.serverSocket.listen(1)
         
     def accept(self):
-        return self.serverSocket.accept()
+        conn, addr = self.serverSocket.accept()
+        self.serverStream = conn.makefile(mode="rw")
+        return self.serverStream, addr
     
     def test(self):
         sendData = '{"method": "read"}'

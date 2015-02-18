@@ -71,9 +71,12 @@ def loadRequest(requestIn):
     data = json.loads(requestIn)
     if _METHOD_ in data:
         return data 
+    if _ERROR_ in data:
+        raise getattr(sys.modules[__name__], data[_ERROR_][_NAME_])(data[_ERROR_][_ARGS_])
     raise MethodError("Message is incorrect, recieved message: ", data)
 
 def loadReply(replyIn):
+    print(replyIn)
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
     if _RESULT_ in data:

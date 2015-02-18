@@ -12,17 +12,22 @@ import socket
 import json
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+import time
+
+_CURR_FOLDER_ = os.path.join(os.path.dirname(__file__))
+
+sys.path.append(_CURR_FOLDER_)
 from nameServiceLocation import name_service_address
 from communication import Communication
-from protocols_utilities import *
+
+exec(open(os.path.join(_CURR_FOLDER_, "protocols_utilities.py")).read())
 
 """Object Request Broker
 
 This module implements the infrastructure needed to transparently create
 objects that communicate via networks. This infrastructure consists of:
 
---  Strub ::
+--  Stub ::
         Represents the image of a remote object on the local machine.
         Used to connect to remote objects. Also called Proxy.
 --  Skeleton ::
@@ -81,7 +86,15 @@ class Request(threading.Thread):
         try: 
             print("Request initiated")
             
-            print(loadReply(self.conn.read()))
+            requestData = loadRequest(self.conn.readline())
+            print(requestData)
+            
+            if requestData.get(_ARGS_) == []:
+                    self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
+                    self.conn.flush()
+                    return
+            self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            self.conn.flush()
         except Exception as e:
             print([type(e).__name__, e.args])
 
@@ -100,17 +113,15 @@ class Skeleton(threading.Thread):
         self.address = address
         self.owner = owner
         self.daemon = True
+        self.commObj = Communication(self.address)
+        self.commObj.listen()
         
-        self.serverSocket = Communication(address)
-        self.serverSocket.listen()
-        
-
     def run(self):
         while True:
             try:
-                conn, addr = self.serverSocket.accept()
-                req = Request(self.owner, self.serverSocket, addr)
-                print("Serving request from %s", addr)
+                conn, addr = self.commObj.accept()
+                req = Request(self.owner, conn, addr)
+                print("Serving request from %s", self.address)
                 req.start()
             except Exception as e:
                 print [type(e).__name__, e.args]

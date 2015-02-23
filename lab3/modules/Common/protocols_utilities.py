@@ -76,7 +76,6 @@ def loadRequest(requestIn):
     raise MethodError("Message is incorrect, recieved message: ", data)
 
 def loadReply(replyIn):
-    print(replyIn)
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
     if _RESULT_ in data:

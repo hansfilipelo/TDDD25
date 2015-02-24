@@ -58,14 +58,17 @@ class Stub(object):
         self.communicator = Communication(name_service_address)
 
     def _rmi(self, method, *args):
-        
+
+        print("method: " + method)
         self.communicator.connectToServer()
         self.communicator.send(createRequest(method,args))
         return loadReply(self.communicator.read())
 
     def __getattr__(self, attr):
         """Forward call to name over the network at the given address."""
+        print("__getattr__  is called")
         def rmi_call(*args):
+            print("2asd")
             return self._rmi(attr, *args)
         return rmi_call
 

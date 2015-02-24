@@ -61,6 +61,7 @@ class Client(orb.Peer):
     """Chat client class."""
 
     def __init__(self, local_address, ns_address, cient_type):
+        print("We are here 1")
         """Initialize the client."""
         orb.Peer.__init__(self, local_address, ns_address, client_type)
         self.peer_list = PeerList(self)
@@ -69,7 +70,9 @@ class Client(orb.Peer):
             "unregister_peer":   self.peer_list.unregister_peer,
             "display_peers":     self.peer_list.display_peers
         }
+        print("We are here 2")
         orb.Peer.start(self)
+        print("We are here 3")
         self.peer_list.initialize()
 
     # Public methods

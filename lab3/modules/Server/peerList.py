@@ -34,18 +34,17 @@ class PeerList(object):
         object has been registered with the name service.
 
         """
-
         self.lock.acquire()
         try:
-
             for peer in self.owner.name_service._rmi("require_all", "testing123"):
                 if peer[0] < self.owner.id:
                     try:
                         # We only add the peers to the list that we can reach (register)
-                        self.peers[peer[0]].register_peer(self.owner.id, self.owner.address)
                         self.peers[peer[0]] = orb.Stub(tuple(peer[1]))
+                        print(self.peers[peer[0]].register_peer)
+
                     except:
-                        print("Could not register onto Peer: " + str(peer[0]))
+                        print("register failed: " + str(peer[0]) + " NOT added to list")
 
         finally:
             self.lock.release()
@@ -55,6 +54,7 @@ class PeerList(object):
 
         self.lock.acquire()
         try:
+
 
             for peer in self.peers:
                 try:

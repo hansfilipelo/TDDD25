@@ -50,25 +50,20 @@ class Stub(object):
     """ Stub for generic objects distributed over the network.
 
     This is  wrapper object for a socket.
-
     """
 
     def __init__(self, address):
         self.address = tuple(address)
-        self.communicator = Communication(name_service_address)
+        self.communicator = Communication(address)
 
     def _rmi(self, method, *args):
-
-        print("method: " + method)
         self.communicator.connectToServer()
         self.communicator.send(createRequest(method,args))
         return loadReply(self.communicator.read())
 
     def __getattr__(self, attr):
         """Forward call to name over the network at the given address."""
-        print("__getattr__  is called")
         def rmi_call(*args):
-            print("2asd")
             return self._rmi(attr, *args)
         return rmi_call
 
@@ -86,17 +81,43 @@ class Request(threading.Thread):
 
     def run(self):
         
-        try: 
+        try:
             print("Request initiated")
-            
             requestData = loadRequest(self.conn.readline())
-            print(requestData)
             
             if requestData.get(_ARGS_) == []:
                     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
                     self.conn.flush()
                     return
-            self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            #
+            #
+            # Start of: temporary solution
+            #
+            #
+            # Original code:
+            #   self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            #
+            # There is something that doesn't work when trying to register or sending msg
+            # The other peer uses the stub to register and sending message to this peer and that stub generates the requests:
+            # {'method': 'register_peer', 'args': [17916, ['192.168.0.131', 44971]]}
+            # {'method': 'print_message', 'args': [17923, ' asdasdas']}
+            #
+            #
+            if requestData[_METHOD_] == 'register_peer':
+                peerInfo = requestData[_ARGS_]
+                self.conn.write(createResultReply(self.owner.register_peer(peerInfo[0], peerInfo[1])) + '\n')
+
+            elif requestData[_METHOD_] == 'print_message':
+                msgData = requestData[_ARGS_]
+                self.conn.write(createResultReply(self.owner.print_message(msgData[0], msgData[1])) + "\n")
+
+            else:
+                self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            #
+            #
+            # End of: temporary solution
+            #
+            #
             self.conn.flush()
         except Exception as e:
             print([type(e).__name__, e.args])
@@ -122,10 +143,12 @@ class Skeleton(threading.Thread):
     def run(self):
         while True:
             try:
+                print("Skeleton.run is waiting for request..\n\n You can still use menu commands\n and write messages using <id> : <msg>")
                 conn, addr = self.commObj.accept()
                 req = Request(self.owner, conn, addr)
                 print("Serving request from %s", self.address)
                 req.start()
+                print("Request served\n")
             except Exception as e:
                 print [type(e).__name__, e.args]
             

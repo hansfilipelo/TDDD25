@@ -11,7 +11,7 @@
 
 import threading
 from Common import orb
-from Common import objectType
+from Common.objectType import object_type
 
 
 class PeerList(object):
@@ -36,16 +36,17 @@ class PeerList(object):
         """
         self.lock.acquire()
         try:
-            for peer in self.owner.name_service._rmi("require_all", "testing123"):
-                if peer[0] < self.owner.id:
+
+            for peerInfo in self.owner.name_service._rmi("require_all", object_type):
+                if peerInfo[0] < self.owner.id:
                     try:
-                        # We only add the peers to the list that we can reach (register)
-                        self.peers[peer[0]] = orb.Stub(tuple(peer[1]))
-                        print(self.peers[peer[0]].register_peer)
-
+                        # We only add the peers to the list that we can reach them and register them
+                        serverPeer = orb.Stub(tuple(peerInfo[1]))
+                        serverPeer.register_peer(self.owner.id, self.owner.address)
+                        self.peers[peerInfo[0]] = serverPeer
+                        print("success to register to id: " + str(peerInfo[0]) + " added to peerList")
                     except:
-                        print("register failed: " + str(peer[0]) + " NOT added to list")
-
+                        print("failed  to register to id: " + str(peerInfo[0]))
         finally:
             self.lock.release()
 

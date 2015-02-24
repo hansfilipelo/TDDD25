@@ -61,19 +61,21 @@ class Client(orb.Peer):
     """Chat client class."""
 
     def __init__(self, local_address, ns_address, cient_type):
-        print("We are here 1")
         """Initialize the client."""
         orb.Peer.__init__(self, local_address, ns_address, client_type)
         self.peer_list = PeerList(self)
-        self.dispatched_calls = {
+        self.dispatched_calls =\
+        {
             "register_peer":     self.peer_list.register_peer,
             "unregister_peer":   self.peer_list.unregister_peer,
             "display_peers":     self.peer_list.display_peers
         }
-        print("We are here 2")
         orb.Peer.start(self)
-        print("We are here 3")
+        print("\n--------Initializing Peer List------------")
         self.peer_list.initialize()
+        print("------------------------------------------\n")
+        self.peer_list.display_peers()
+        print("\n")
 
     # Public methods
 
@@ -90,14 +92,16 @@ class Client(orb.Peer):
                 "Client instance has no attribute '{}'".format(attr))
 
     def print_message(self, from_id, msg):
-        print("Received a message from {}: {}".format(from_id, msg))
+        print("\n__Message from " + str(from_id) + ": " + str(msg) + "\n")
+        return "message sent and read from other peer"
+
 
     def send_message(self, to_id, msg):
         try:
-            self.peer_list.peer(to_id).print_message(self.id, msg)
-        except Exception:
-            print(("Cannot send messages to {}."
-                   "Make sure it is in the list of peers.").format(to_id))
+            print(self.peer_list.peer(to_id).print_message(self.id, msg))
+        except Exception as e:
+            print("Could not send message")
+            print([type(e).__name__, e.args])
 
 # -----------------------------------------------------------------------------
 # The main program
@@ -107,18 +111,20 @@ class Client(orb.Peer):
 local_address = (socket.gethostname(), local_port)
 p = Client(local_address, name_service_address, client_type)
 
-
-def menu():
-    print("""\
+menuText = """\
 Choose one of the following commands:
     l                       ::  display the peer list,
     <PEER_ID> : <MESSAGE>   ::  send <MESSAGE> to <PEER_ID>,
     h                       ::  print this menu,
     q                       ::  exit.\
-""")
+"""
+
+def menu():
+    print(menuText)
 
 command = ""
 cursor = "{}({})> ".format(p.type, p.id)
+
 menu()
 while command != "q":
     try:

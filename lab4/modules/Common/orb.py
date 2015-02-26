@@ -10,13 +10,24 @@
 import threading
 import socket
 import json
+import sys
+import os
+import time
+
+_CURR_FOLDER_ = os.path.join(os.path.dirname(__file__))
+
+sys.path.append(_CURR_FOLDER_)
+from nameServiceLocation import name_service_address
+from communication import Communication
+
+exec(open(os.path.join(_CURR_FOLDER_, "protocols_utilities.py")).read())
 
 """Object Request Broker
 
 This module implements the infrastructure needed to transparently create
 objects that communicate via networks. This infrastructure consists of:
 
---  Strub ::
+--  Stub ::
         Represents the image of a remote object on the local machine.
         Used to connect to remote objects. Also called Proxy.
 --  Skeleton ::
@@ -39,17 +50,16 @@ class Stub(object):
     """ Stub for generic objects distributed over the network.
 
     This is  wrapper object for a socket.
-
     """
 
     def __init__(self, address):
         self.address = tuple(address)
+        self.communicator = Communication(address)
 
     def _rmi(self, method, *args):
-        #
-        # Your code here.
-        #
-        pass
+        self.communicator.connectToServer()
+        self.communicator.send(createRequest(method,args))
+        return loadReply(self.communicator.read())
 
     def __getattr__(self, attr):
         """Forward call to name over the network at the given address."""
@@ -70,10 +80,47 @@ class Request(threading.Thread):
         self.daemon = True
 
     def run(self):
-        #
-        # Your code here.
-        #
-        pass
+        
+        try:
+            print("Request initiated")
+            requestData = loadRequest(self.conn.readline())
+            
+            if requestData.get(_ARGS_) == []:
+                    self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
+                    self.conn.flush()
+                    return
+            #
+            #
+            # Start of: temporary solution
+            #
+            #
+            # Original code:
+            self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(*requestData[_ARGS_])) + '\n')
+            #
+            # There is something that doesn't work when trying to register or sending msg
+            # The other peer uses the stub to register and sending message to this peer and that stub generates the requests:
+            # {'method': 'register_peer', 'args': [17916, ['192.168.0.131', 44971]]}
+            # {'method': 'print_message', 'args': [17923, ' asdasdas']}
+            #
+            #
+            # if requestData[_METHOD_] == 'register_peer':
+            #     peerInfo = requestData[_ARGS_]
+            #     self.conn.write(createResultReply(self.owner.register_peer(peerInfo[0], peerInfo[1])) + '\n')
+            #
+            # elif requestData[_METHOD_] == 'print_message':
+            #     msgData = requestData[_ARGS_]
+            #     self.conn.write(createResultReply(self.owner.print_message(msgData[0], msgData[1])) + "\n")
+            #
+            # else:
+            #     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            # #
+            #
+            # End of: temporary solution
+            #
+            #
+            self.conn.flush()
+        except Exception as e:
+            print([type(e).__name__, e.args])
 
 
 class Skeleton(threading.Thread):
@@ -90,16 +137,23 @@ class Skeleton(threading.Thread):
         self.address = address
         self.owner = owner
         self.daemon = True
-        #
-        # Your code here.
-        #
-        pass
-
+        self.commObj = Communication(self.address)
+        self.commObj.listen()
+        
     def run(self):
-        #
-        # Your code here.
-        #
-        pass
+        while True:
+            try:
+                print("Skeleton.run is waiting for request..\n\n You can still use menu commands\n and write messages using <id> : <msg>")
+                conn, addr = self.commObj.accept()
+                req = Request(self.owner, conn, addr)
+                print("Serving request from %s", self.address)
+                req.start()
+                print("Request served\n")
+            except Exception as e:
+                print [type(e).__name__, e.args]
+            
+        
+    
 
 
 class Peer:
@@ -114,17 +168,17 @@ class Peer:
         self.skeleton = Skeleton(self, self.address)
         self.name_service_address = self._get_external_interface(ns_address)
         self.name_service = Stub(self.name_service_address)
-
+        
     # Private methods
-
+    
     def _get_external_interface(self, address):
         """ Determine the external interface associated with a host name.
-
+        
         This function translates the machine's host name into its the
         machine's external address, not into '127.0.0.1'.
-
+        
         """
-
+        
         addr_name = address[0]
         if addr_name != "":
             addrs = socket.gethostbyname_ex(addr_name)[2]
@@ -138,22 +192,21 @@ class Peer:
         addr = list(address)
         addr[0] = addr_name
         return tuple(addr)
-
+        
     # Public methods
-
+    
     def start(self):
         """Start the communication interface."""
-
+        
         self.skeleton.start()
-        self.id, self.hash = self.name_service.register(self.type,
-                                                        self.address)
-
+        self.id, self.hash = self.name_service.register(self.type,self.address)
+    
     def destroy(self):
         """Unregister the object before removal."""
-
+        
         self.name_service.unregister(self.id, self.type, self.hash)
-
+    
     def check(self):
         """Checking to see if the object is still alive."""
-
+        
         return (self.id, self.type)

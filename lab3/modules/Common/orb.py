@@ -95,7 +95,7 @@ class Request(threading.Thread):
             #
             #
             # Original code:
-            #   self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(*requestData[_ARGS_])) + '\n')
             #
             # There is something that doesn't work when trying to register or sending msg
             # The other peer uses the stub to register and sending message to this peer and that stub generates the requests:
@@ -103,17 +103,17 @@ class Request(threading.Thread):
             # {'method': 'print_message', 'args': [17923, ' asdasdas']}
             #
             #
-            if requestData[_METHOD_] == 'register_peer':
-                peerInfo = requestData[_ARGS_]
-                self.conn.write(createResultReply(self.owner.register_peer(peerInfo[0], peerInfo[1])) + '\n')
-
-            elif requestData[_METHOD_] == 'print_message':
-                msgData = requestData[_ARGS_]
-                self.conn.write(createResultReply(self.owner.print_message(msgData[0], msgData[1])) + "\n")
-
-            else:
-                self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            # if requestData[_METHOD_] == 'register_peer':
+            #     peerInfo = requestData[_ARGS_]
+            #     self.conn.write(createResultReply(self.owner.register_peer(peerInfo[0], peerInfo[1])) + '\n')
             #
+            # elif requestData[_METHOD_] == 'print_message':
+            #     msgData = requestData[_ARGS_]
+            #     self.conn.write(createResultReply(self.owner.print_message(msgData[0], msgData[1])) + "\n")
+            #
+            # else:
+            #     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
+            # #
             #
             # End of: temporary solution
             #

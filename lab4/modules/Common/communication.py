@@ -15,6 +15,7 @@ class Communication(object):
     def connectToServer(self):
         try:
             self.serverSocket = socket.create_connection(self.serverInfo)
+            self.serverSocket.settimeout(1)
             self.serverStream = self.serverSocket.makefile(mode="rw")
             return True
         except socket.error:
@@ -30,7 +31,10 @@ class Communication(object):
         self.serverStream.flush()
 
     def read(self):
-        return self.serverStream.readline()
+        try: 
+            return self.serverStream.readline()
+        except Exception as e:
+            print(type(e).__name__ + " - Arguments: " + e.args)
     
     def listen(self):
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

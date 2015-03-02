@@ -78,6 +78,7 @@ def loadRequest(requestIn):
 def loadReply(replyIn):
     msgFormatCorrect(replyIn)
     data = json.loads(replyIn)
+    print(data)
     if _RESULT_ in data:
         return data[_RESULT_]
     if _ERROR_ in data:

@@ -59,7 +59,9 @@ class Stub(object):
     def _rmi(self, method, *args):
         self.communicator.connectToServer()
         self.communicator.send(createRequest(method,args))
-        return loadReply(self.communicator.read())
+        data = loadReply(self.communicator.read())
+        self.communicator.disconnectFromServer()
+        return data
 
     def __getattr__(self, attr):
         """Forward call to name over the network at the given address."""

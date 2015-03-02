@@ -123,10 +123,15 @@ class DistributedLock(object):
     def acquire(self):
         """Called when this object tries to acquire the lock."""
         print("Trying to acquire the lock...")
-        #
-        # Your code here.
-        #
-        pass
+        
+        for id in self.peer_list.get_peers():
+            try:
+                token = self.peer_list.get_peers()[id].request_token()
+            except Exception as e:
+                print(type(e).__name__ + " - Arguments: " + e.args)
+                
+        
+        
 
     def release(self):
         """Called when this object releases the lock."""
@@ -141,6 +146,7 @@ class DistributedLock(object):
         #
         # Your code here.
         #
+        print("Got request.")
         pass
 
     def obtain_token(self, token):

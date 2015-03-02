@@ -55,15 +55,15 @@ class PeerList(object):
 
         self.lock.acquire()
         try:
-
-
+            
+            
             for peer in self.peers:
                 try:
                     self.peers[peer[0]].unregister_peer(self.owner.id, self.owner.address)
                 except:
                     # If we can't reach the other peer we can't do nothing later either, because this peer will be destroyed anyways
                     continue
-
+        
         finally:
             self.lock.release()
 

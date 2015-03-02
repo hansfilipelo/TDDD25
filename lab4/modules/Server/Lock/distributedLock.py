@@ -76,7 +76,7 @@ class DistributedLock(object):
 
     def initialize(self):
         """ Initialize the state, request, and token dicts of the lock.
-
+        
         Since the state of the distributed lock is linked with the
         number of peers among which the lock is distributed, we can
         utilize the lock of peer_list to protect the state of the
@@ -84,11 +84,14 @@ class DistributedLock(object):
 
         NOTE: peer_list must already be populated when this
         function is called.
-
+        
         """
-        #
-        # Your code here.
-        #
+        
+        if self.peer_list.get_peers():
+            print("Not first...")
+        else:
+            self.token = {self.owner.id: self.time}
+            self.state = TOKEN_PRESENT
         pass
 
     def destroy(self):

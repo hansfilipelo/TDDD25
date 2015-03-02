@@ -124,13 +124,22 @@ class DistributedLock(object):
         """Called when this object tries to acquire the lock."""
         print("Trying to acquire the lock...")
         
-        for id in self.peer_list.get_peers():
-            try:
-                token = self.peer_list.get_peers()[id].request_token()
-            except Exception as e:
-                print(type(e).__name__ + " - Arguments: " + e.args)
-                
         
+        if self.state == NO_TOKEN:
+            print("We are here 1")
+            token = ""
+            
+            print(self.peer_list.get_peers())
+            
+            for id in self.peer_list.get_peers():
+                print("We are at id: " + id)
+                try:
+                    self.peer_list.get_peers()[id].request_token(self.time, self.owner.id)
+                    print("We are at id: " + id)
+                except Exception as e:
+                        print(type(e).__name__ + " - Arguments: " + e.args)
+            
+        pass
         
 
     def release(self):
@@ -143,18 +152,23 @@ class DistributedLock(object):
 
     def request_token(self, time, pid):
         """Called when some other object requests the token from us."""
-        #
-        # Your code here.
-        #
+        
         print("Got request.")
+        
+        if self.state == TOKEN_PRESENT:
+            self.peer_list.get_peers[pid].obtain_token(self.token)
+            self.state == NO_TOKEN
+        
         pass
 
     def obtain_token(self, token):
         """Called when some other object is giving us the token."""
         print("Receiving the token...")
-        #
-        # Your code here.
-        #
+        
+        self.token = token
+        self.state = TOKEN_PRESENT
+        print(token)
+        
         pass
 
     def display_status(self):

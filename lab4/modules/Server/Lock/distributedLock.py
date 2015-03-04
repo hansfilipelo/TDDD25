@@ -157,7 +157,8 @@ class DistributedLock(object):
         
         if self.state == TOKEN_PRESENT:
             self.peer_list.get_peers()[pid].obtain_token(self._prepare(self.token))
-            self.state == NO_TOKEN
+            self.state = NO_TOKEN
+            self.token = None
         
         pass
 
@@ -167,7 +168,6 @@ class DistributedLock(object):
         
         self.token = self._unprepare(token)
         self.state = TOKEN_PRESENT
-        print(str(token))
         
         pass
 

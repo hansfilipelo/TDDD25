@@ -132,7 +132,7 @@ class DistributedLock(object):
             print(self.peer_list.get_peers())
             
             for id in self.peer_list.get_peers():
-                print("We are at id: " + id)
+                print("We are at id: " + str(id))
                 try:
                     self.peer_list.get_peers()[id].request_token(self.time, self.owner.id)
                     print("We are at id: " + id)
@@ -156,7 +156,7 @@ class DistributedLock(object):
         print("Got request.")
         
         if self.state == TOKEN_PRESENT:
-            self.peer_list.get_peers[pid].obtain_token(self.token)
+            self.peer_list.get_peers()[pid].obtain_token(self.token)
             self.state == NO_TOKEN
         
         pass

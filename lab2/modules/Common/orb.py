@@ -55,7 +55,7 @@ class Stub(object):
 
     def __init__(self, address):
         self.address = tuple(address)
-        self.communicator = Communication(name_service_address)
+        self.communicator = Communication(address)
 
     def _rmi(self, method, *args):
         

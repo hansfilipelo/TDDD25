@@ -32,8 +32,12 @@ class Communication(object):
 
     def read(self):
         try: 
-            return self.serverStream.readline()
+            print("In comm")
+            data = self.serverStream.readline()
+            print("In comm 2")
+            return data
         except Exception as e:
+            print("Fail")
             print(type(e).__name__ + " - Arguments: " + e.args)
     
     def listen(self):

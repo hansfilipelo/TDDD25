@@ -89,6 +89,11 @@ class DistributedLock(object):
         
         if self.peer_list.get_peers():
             print("Not first peer...")
+            self.token = {self.owner.id: self.time}
+            self.request = {self.owner.id: self.time}
+            for pid in self.peer_list.get_peers().keys():
+                self.token.update({pid: 0})
+                self.request.update({pid: 0})
         else:
             print("First peer!")
             self.token = {self.owner.id: self.time}
@@ -109,17 +114,17 @@ class DistributedLock(object):
 
     def register_peer(self, pid):
         """Called when a new peer joins the system."""
-        #
-        # Your code here.
-        #
-        pass
+        
+        self.token[pid] = 0
+        self.request[pid] = 0
+        
 
     def unregister_peer(self, pid):
         """Called when a peer leaves the system."""
-        #
-        # Your code here.
-        #
-        pass
+        
+        del self.token[pid]
+        del self.request[pid]
+        
 
     def acquire(self):
         """Called when this object tries to acquire the lock."""
@@ -146,17 +151,25 @@ class DistributedLock(object):
         
         self.state = TOKEN_PRESENT
         
-        pass
+        for id in self.peer_list.get_peers():
+            if self.request[id] > self.token[id]:
+                self.state = NO_TOKEN
+                self.token[self.owner.id] = self.time
+                self.peer_list.get_peers()[id].obtain_token(self._prepare(self.token))
+                break
+            
+        
 
     def request_token(self, time, pid):
         """Called when some other object requests the token from us."""
         
         print("Got request.")
         
-        if self.state == TOKEN_PRESENT and (not(pid in self.token) or time > self.token[pid]):
+        self.request[pid] = max(self.request[pid],time)
+        
+        if self.state == TOKEN_PRESENT and time > self.token[pid]:
             self.peer_list.get_peers()[pid].obtain_token(self._prepare(self.token))
             self.state = NO_TOKEN
-            self.token = None
         
         
 
@@ -165,6 +178,7 @@ class DistributedLock(object):
         print("Receiving the token...")
         
         self.token = self._unprepare(token)
+        self.token[self.owner.id] = self.time
         self.state = TOKEN_HELD
         
         pass

@@ -85,10 +85,10 @@ class Request(threading.Thread):
             print("Request initiated")
             requestData = loadRequest(self.conn.readline())
             
-            if requestData.get(_ARGS_) == []:
-                    self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
-                    self.conn.flush()
-                    return
+            #if requestData.get(_ARGS_) == []:
+            #        self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
+            #        self.conn.flush()
+            #        return
             #
             #
             # Start of: temporary solution

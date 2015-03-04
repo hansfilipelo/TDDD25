@@ -125,19 +125,17 @@ class DistributedLock(object):
         """Called when this object tries to acquire the lock."""
         print("Trying to acquire the lock...")
         
+        self.time = self.time + 1
         
         if self.state == NO_TOKEN:
-            token = ""
-            
-            print(self.peer_list.get_peers())
             
             for id in self.peer_list.get_peers():
                 print("Requesting token from id: " + str(id))
                 try:
                     self.peer_list.get_peers()[id].request_token(self.time, self.owner.id)
                 except Exception as e:
-                        print(type(e).__name__ + " - Arguments: ", end="")
-                        print(e.args)
+                    print(type(e).__name__ + " - Arguments: ", end="")
+                    print(e.args)
             
         pass
         
@@ -145,9 +143,9 @@ class DistributedLock(object):
     def release(self):
         """Called when this object releases the lock."""
         print("Releasing the lock...")
-        #
-        # Your code here.
-        #
+        
+        self.state = TOKEN_PRESENT
+        
         pass
 
     def request_token(self, time, pid):
@@ -155,19 +153,19 @@ class DistributedLock(object):
         
         print("Got request.")
         
-        if self.state == TOKEN_PRESENT:
+        if self.state == TOKEN_PRESENT and (not(pid in self.token) or time > self.token[pid]):
             self.peer_list.get_peers()[pid].obtain_token(self._prepare(self.token))
             self.state = NO_TOKEN
             self.token = None
         
-        pass
+        
 
     def obtain_token(self, token):
         """Called when some other object is giving us the token."""
         print("Receiving the token...")
         
         self.token = self._unprepare(token)
-        self.state = TOKEN_PRESENT
+        self.state = TOKEN_HELD
         
         pass
 

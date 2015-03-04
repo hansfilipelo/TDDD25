@@ -87,53 +87,34 @@ class Request(threading.Thread):
             print("Request initiated")
             requestData = loadRequest(self.conn.readline())
             
+            print("1")
             if requestData.get(_ARGS_) == []:
+                    print("2")
                     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
                     self.conn.flush()
                     return
-            #
-            #
-            # Start of: temporary solution
-            #
-            #
-            # Original code:
+            
+            print("Method ", end="")
+            print(requestData[_METHOD_])
+            print("Args: ", end="")
+            print(requestData[_ARGS_])
             self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(*requestData[_ARGS_])) + '\n')
-            #
-            # There is something that doesn't work when trying to register or sending msg
-            # The other peer uses the stub to register and sending message to this peer and that stub generates the requests:
-            # {'method': 'register_peer', 'args': [17916, ['192.168.0.131', 44971]]}
-            # {'method': 'print_message', 'args': [17923, ' asdasdas']}
-            #
-            #
-            # if requestData[_METHOD_] == 'register_peer':
-            #     peerInfo = requestData[_ARGS_]
-            #     self.conn.write(createResultReply(self.owner.register_peer(peerInfo[0], peerInfo[1])) + '\n')
-            #
-            # elif requestData[_METHOD_] == 'print_message':
-            #     msgData = requestData[_ARGS_]
-            #     self.conn.write(createResultReply(self.owner.print_message(msgData[0], msgData[1])) + "\n")
-            #
-            # else:
-            #     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(requestData[_ARGS_])) + '\n')
-            # #
-            #
-            # End of: temporary solution
-            #
-            #
+            print("3")
+            
             self.conn.flush()
         except Exception as e:
             print([type(e).__name__, e.args])
 
 
 class Skeleton(threading.Thread):
-
+    
     """ Skeleton class for a generic owner.
-
+    
     This is used to listen to an address of the network, manage incoming
     connections and forward calls to the generic owner class.
-
+    
     """
-
+    
     def __init__(self, owner, address):
         threading.Thread.__init__(self)
         self.address = address
@@ -141,7 +122,7 @@ class Skeleton(threading.Thread):
         self.daemon = True
         self.commObj = Communication(self.address)
         self.commObj.listen()
-        
+    
     def run(self):
         while True:
             try:

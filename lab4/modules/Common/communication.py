@@ -15,7 +15,7 @@ class Communication(object):
     def connectToServer(self):
         try:
             self.serverSocket = socket.create_connection(self.serverInfo)
-            self.serverSocket.settimeout(1)
+            self.serverSocket.settimeout(5)
             self.serverStream = self.serverSocket.makefile(mode="rw")
             return True
         except socket.error:
@@ -32,13 +32,11 @@ class Communication(object):
 
     def read(self):
         try: 
-            print("In comm")
             data = self.serverStream.readline()
-            print("In comm 2")
             return data
         except Exception as e:
-            print("Fail")
-            print(type(e).__name__ + " - Arguments: " + e.args)
+                print(type(e).__name__ + " - Arguments: ", end="")
+                print(e.args)
     
     def listen(self):
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

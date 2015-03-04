@@ -63,7 +63,7 @@ class DistributedLock(object):
         """Prepare the token to be sent as a JSON message.
 
         This step is necessary because in the JSON standard, the key to
-        a dictionary must be a string whild in the token the key is
+        a dictionary must be a string while in the token the key is
         integer.
         """
         return list(token.items())
@@ -88,8 +88,9 @@ class DistributedLock(object):
         """
         
         if self.peer_list.get_peers():
-            print("Not first...")
+            print("Not first peer...")
         else:
+            print("First peer!")
             self.token = {self.owner.id: self.time}
             self.state = TOKEN_PRESENT
         pass
@@ -126,18 +127,17 @@ class DistributedLock(object):
         
         
         if self.state == NO_TOKEN:
-            print("We are here 1")
             token = ""
             
             print(self.peer_list.get_peers())
             
             for id in self.peer_list.get_peers():
-                print("We are at id: " + str(id))
+                print("Requesting token from id: " + str(id))
                 try:
                     self.peer_list.get_peers()[id].request_token(self.time, self.owner.id)
-                    print("We are at id: " + id)
                 except Exception as e:
-                        print(type(e).__name__ + " - Arguments: " + e.args)
+                        print(type(e).__name__ + " - Arguments: ", end="")
+                        print(e.args)
             
         pass
         
@@ -156,7 +156,7 @@ class DistributedLock(object):
         print("Got request.")
         
         if self.state == TOKEN_PRESENT:
-            self.peer_list.get_peers()[pid].obtain_token(self.token)
+            self.peer_list.get_peers()[pid].obtain_token(self._prepare(self.token))
             self.state == NO_TOKEN
         
         pass
@@ -165,9 +165,9 @@ class DistributedLock(object):
         """Called when some other object is giving us the token."""
         print("Receiving the token...")
         
-        self.token = token
+        self.token = self._unprepare(token)
         self.state = TOKEN_PRESENT
-        print(token)
+        print(str(token))
         
         pass
 

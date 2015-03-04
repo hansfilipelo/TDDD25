@@ -67,7 +67,6 @@ def createRequest(method, args=[]):
 def loadRequest(requestIn):
     msgFormatCorrect(requestIn, True)
     data = json.loads(requestIn)
-    print(data)
     if _METHOD_ in data:
         return data 
     if _ERROR_ in data:

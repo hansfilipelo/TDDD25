@@ -120,7 +120,8 @@ class Request(threading.Thread):
             #
             self.conn.flush()
         except Exception as e:
-            print([type(e).__name__, e.args])
+            self.conn.write(createErrorReply(str(type(e).__name__), e.args))
+            self.conn.flush()
 
 
 class Skeleton(threading.Thread):

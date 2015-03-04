@@ -61,7 +61,7 @@ def msgFormatCorrect(msg_in, is_request = False):
 
 
 #//////////////////// Begin of: Functions to create or load request/reply ///#
-def createRequest(method, args=None):
+def createRequest(method, args=[]):
     if args:
         return json.dumps({_METHOD_: method, _ARGS_: args})
     return json.dumps({_METHOD_: method})

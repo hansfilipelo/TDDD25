@@ -7,6 +7,8 @@
 # Copyright 2012 Linkoping University
 # -----------------------------------------------------------------------------
 
+import random
+
 """Module for the distributed mutual exclusion implementation.
 
 This implementation is based on the second Rikard-Agravara algorithm.
@@ -107,10 +109,12 @@ class DistributedLock(object):
         give it to someone else.
 
         """
-        #
-        # Your code here.
-        #
-        pass
+        
+        if self.state in list((TOKEN_PRESENT, TOKEN_HELD)) and self.peer_list.get_peers():
+            self.state = NO_TOKEN
+            for key in list(self.peer_list.get_peers().keys()):
+                self.peer_list.peer(key).obtain_token(self._prepare(self.token))
+                break
 
     def register_peer(self, pid):
         """Called when a new peer joins the system."""
@@ -133,7 +137,6 @@ class DistributedLock(object):
         self.time = self.time + 1
         
         if self.state == NO_TOKEN:
-            
             for id in self.peer_list.get_peers():
                 print("Requesting token from id: " + str(id))
                 try:
@@ -141,7 +144,9 @@ class DistributedLock(object):
                 except Exception as e:
                     print(type(e).__name__ + " - Arguments: ", end="")
                     print(e.args)
-            
+        if self.state == TOKEN_PRESENT:
+            self.obtain_token(self._prepare(self.token))
+        
         pass
         
 
@@ -178,8 +183,11 @@ class DistributedLock(object):
         print("Receiving the token...")
         
         self.token = self._unprepare(token)
-        self.token[self.owner.id] = self.time
-        self.state = TOKEN_HELD
+        if self.time > self.token[self.owner.id]:
+            self.token[self.owner.id] = self.time
+            self.state = TOKEN_HELD
+        else:
+            self.state = TOKEN_PRESENT
         
         pass
 

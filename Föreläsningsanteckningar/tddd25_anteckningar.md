@@ -107,13 +107,25 @@ Typer av fel:
 - Totally ordered (fullständig ordning)
 - Causally ordered (kausalt ordnat system)
 
-**Kausalt**
+### Kausalt
 
 Garanterar olika händelsers relation till varandra - dock ej att de sker i exakt ordning tidsmässigt. Använder oftast vektorklockor (flerdimensionella Lamportklockor!)
 
-**Total**
+### Total
 
-Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Skalar dåligt och är ineffektivt. 
+Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). 
+
+#### Distribuerad överenskommelse
+
+En replica manager (RM) nummrerar sina requests enligt: 
+
+**cuid(RM<sub>i</sub>,r) = max(SEEN<sub>i</sub>,ACCEPT<sub>i</sub>) + 1 + i/N**
+
+En front end (FE) får sedan requests från alla RMs och numrerar dessa enligt: 
+
+**uid(r) = max<sub>i∈{1 ...N}</sub>(cuid(RM<sub>i</sub>,r))**
+
+
 
 ### Tidsdrift och synkronisering av klockor
 
@@ -131,7 +143,7 @@ Man kan aldrig ställa bak en klocka - bara sakta ner den.
 
 Sätt tiden genom tt beräkna:
 
-T<sub>maxRec</sub> - T<sub>minRec</sub> = (T<sub>1</sub> - T<sub>0</sub>) - 2t<sub>min</sub> **± (T<sub>1</sub> - T<sub>0</sub>)/2 - t<sub>min</sub>**
+**T<sub>maxRec</sub> - T<sub>minRec</sub> = (T<sub>1</sub> - T<sub>0</sub>) - 2t<sub>min</sub>** *± (T<sub>1</sub> - T<sub>0</sub>)/2 - t<sub>min</sub>*
 
 
 ----------------
@@ -167,7 +179,30 @@ För att åstadkomma distribuerad överenskommelse med k-redundans (k st felakti
 
 ### Omröstningar
 
-Banan
+r = nr samtidiga som säger läs  
+w = nr samtidiga som säger write  
+n = antal totala noder
+
+För att undvika två samtidiga skrivningar -> **w > n/2**  
+För att se till att alla som läser får senaste kopian -> **r + w > n** 
+
+**Vid läsning**
+  
+- Lås "r" kopior.
+- Välj den med högst versionsnummer.
+- Läs vald kopia. 
+
+**Vid skrivning**
+
+- Lås w kopior
+- Välj den med högst versionsnummer
+- Skriv till denna (om ex x = x+1 behöver detta göras)
+- Skriv vald version till alla w kopior
+
+System med lågt r -> snabba läsningar  
+System med högre r -> snabba skrivningar
+
+På så sätt kan man anpassa systemet efter last.
 
 ----------------
 

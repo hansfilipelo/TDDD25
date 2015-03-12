@@ -102,17 +102,76 @@ Typer av fel:
 
 ----------------
 
+## Begreppet tid och vektorklockor i dist system
+
+- Totally ordered (fullständig ordning)
+- Causally ordered (kausalt ordnat system)
+
+**Kausalt**
+
+Garanterar olika händelsers relation till varandra - dock ej att de sker i exakt ordning tidsmässigt. Använder oftast vektorklockor (flerdimensionella Lamportklockor!)
+
+**Total**
+
+Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Skalar dåligt och är ineffektivt. 
+
+
+----------------
+
+## Mutual exclusion
+
+**Utan token**
+
+- Central coordinator algorithm
+- Ricart-Agrawala algorithm
+
+**Med token**
+
+- Ricart-Agrawala *second* algorithm
+- Token ring algorithm
+
+
+----------------
+
+
+## Omröstningar
+
+
+----------------
+
+## Felhantering och feltolerans
+
+#### Forward vs backward recovery
+
+Bakåt - spara tillstånd och återgå till detta.
+Framåt - hårdavaru eller mjukvaruredundsns.
+
+#### Byzantinsk felmodell
+
+För att åstadkomma distribuerad överenskommelse med k-redundans (k st felaktiga enheter) krävs 3k+1 enheter. 
+
+![Generals](byzantine_4.png)
+
+----------------
+
 ## Middleware
 
-### Interface Definition Language
+**Object adapter**
 
-Ett interface som specificerar API:t som klienter kan använda för att utföra operationer på/med hjälp av objekt. 
+Objektadaptern är det primära interfacet mellan serverobjektet och ORB. Denna håller koll på referensräkning och livstid för objekt och dess referenser. Objektens referenser genereras utifrån specifikationen av **Interface Definition Language** som skapas av programmeraren. 
 
-### Statisk invokering
+### Interface Definition Language (IDL)
+
+Ett interface som specificerar API:t som klienter kan använda för att utföra operationer på/med hjälp av objekt.
+
+### Remote method invocation 
+
+![RMI call](rmi_call.png)
+
+#### Statisk invokering
 
 Statisk invokering är då mjukvaran vid kompileringstillfället är medveten om vilka interface servern exponerar. Detta ger ett litet overhead. 
 
-### Dynamisk invokering
+#### Dynamisk invokering
 
 Dynamisk invokering sker då klienten vid kompileringstillfället ej vet om vilka interface servern exponerar. Detta ger ett stort overhead då eventuella metoder som kallas vid run-time först måste traversera till servern och sedan ge en respons till klienten. 
-

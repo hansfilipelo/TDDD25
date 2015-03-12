@@ -115,6 +115,24 @@ Garanterar olika händelsers relation till varandra - dock ej att de sker i exak
 
 Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Skalar dåligt och är ineffektivt. 
 
+### Tidsdrift och synkronisering av klockor
+
+- NTP
+
+Man kan aldrig ställa bak en klocka - bara sakta ner den.
+
+**Algoritmer**
+
+- Christians algorithm
+- Berkely algorithm
+- Distributed clocks synchronization algorithm
+
+### Christian's algorithm
+
+Sätt tiden genom tt beräkna:
+
+T<sub>maxRec</sub> - T<sub>minRec</sub> = (T<sub>1</sub> - T<sub>0</sub>) - 2t<sub>min</sub> **± (T<sub>1</sub> - T<sub>0</sub>)/2 - t<sub>min</sub>**
+
 
 ----------------
 
@@ -133,24 +151,23 @@ Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuera
 
 ----------------
 
-
-## Omröstningar
-
-
-----------------
-
 ## Felhantering och feltolerans
 
-#### Forward vs backward recovery
+### Forward vs backward recovery
 
 Bakåt - spara tillstånd och återgå till detta.
 Framåt - hårdavaru eller mjukvaruredundsns.
 
-#### Byzantinsk felmodell
+### Byzantinsk felmodell
 
 För att åstadkomma distribuerad överenskommelse med k-redundans (k st felaktiga enheter) krävs 3k+1 enheter. 
 
 ![Generals](byzantine_4.png)
+
+
+### Omröstningar
+
+Banan
 
 ----------------
 

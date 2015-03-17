@@ -92,16 +92,6 @@ I praktiken används timeouts för asynkrona system - men man behöver ta till f
 
 ----------------
 
-## Felmodeller
-
-Typer av fel: 
-
-- Omission faults - Då en process misslyckas med sin uppgift. Exempelvis att ngt går fel men att ändå svara på ett korrekt sätt. 
-- Arbitrary faults - När en delkomponent lämnar ett felaktigt svar eller inte svarar alls. 
-- Timing faults - När en delkomponent svarar utanför givna tidsramar.
-
-----------------
-
 ## Begreppet tid och vektorklockor i dist system
 
 - Totally ordered (fullständig ordning)
@@ -111,9 +101,15 @@ Typer av fel:
 
 Garanterar olika händelsers relation till varandra - dock ej att de sker i exakt ordning tidsmässigt. Använder oftast vektorklockor (flerdimensionella Lamportklockor!)
 
-### Total
+### Total ordering
 
 Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). 
+
+#### Central
+
+* Front end (FE) skickar request r till alla Resource Managers (RMs).
+* RMs sätter cuid(RM<sub>i</sub>,r) och skickar tillbaka till FE.
+* När FE fått svar från alla RMs så skickar den ett slutgiltigt id för requesten till alla RMs. 
 
 #### Distribuerad överenskommelse
 
@@ -141,10 +137,13 @@ Man kan aldrig ställa bak en klocka - bara sakta ner den.
 
 ### Christian's algorithm
 
+![Christian's algorithm picture](christian_alg.png)
+
 Sätt tiden genom tt beräkna:
 
-$$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± (T\_{1} - T\_{0})/2 - t\_{min} $$
+$$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± \frac{(T\_{1} - T\_{0})}{2} - t\_{min} $$
 
+Där $t\_{min}$ är lika med minsta överföringstiden för mediet mellan tidsserver och lokala enheten.
 
 ----------------
 
@@ -154,30 +153,40 @@ $$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± (T\_{1} - T\_{0})
 
 - Central coordinator algorithm
 - Ricart-Agrawala algorithm
+- K-plurality voting
 
 **Med token**
 
 - Ricart-Agrawala *second* algorithm
 - Token ring algorithm
 
-
 ----------------
 
-## Felhantering och feltolerans
+## Update protocols
 
-### Forward vs backward recovery
+Tänkbara:
 
-Bakåt - spara tillstånd och återgå till detta.
-Framåt - hårdavaru eller mjukvaruredundsns.
+* read-any - write-all protocol
+* available-copies protocol
+* primary-copy protocol
+* voting protocols
 
-### Byzantinsk felmodell
+### Read-any - write-all
 
-För att åstadkomma distribuerad överenskommelse med k-redundans (k st felaktiga enheter) krävs 3k+1 enheter. 
-
-![Generals](byzantine_4.png)
+Läs från vilken som - skriv till samtliga kopior. Snabbt för läsning - inte så snabbt att skriva. 
 
 
-### Omröstningar
+### Available-copies protocol
+
+Läs från en - skriv till alla tillgängliga. Efter fel måste en instans först synda med en annan instans innan den kan acceptera requests från användare igen. 
+
+### Primary-copy protocol
+
+En primär kopia som man använder förskrämningar - resten utför läsoperationer (och läser in senaste versionen från primary copy). 
+
+### Voting protocols
+
+![Read/Write qorum](r_w_qorum.png)
 
 r = nr samtidiga som säger läs  
 w = nr samtidiga som säger write  
@@ -203,6 +212,61 @@ System med lågt r -> snabba läsningar
 System med högre r -> snabba skrivningar
 
 På så sätt kan man anpassa systemet efter last.
+
+
+
+----------------
+
+## Felhantering och feltolerans
+
+### Felmodeller
+
+Typer av fel: 
+
+- Omission faults - Då en process misslyckas med sin uppgift. Exempelvis att ngt går fel men att ändå svara på ett korrekt sätt. 
+- Arbitrary faults - När en delkomponent lämnar ett felaktigt svar eller inte svarar alls. 
+- Timing faults - När en delkomponent svarar utanför givna tidsramar.
+
+
+### Forward vs backward recovery
+
+Bakåt - spara tillstånd och återgå till detta.
+Framåt - hårdavaru eller mjukvaruredundsns.
+
+### Byzantinsk felmodell
+
+För att åstadkomma distribuerad överenskommelse med k-redundans (k st felaktiga enheter) krävs 3k+1 enheter. 
+
+![Generals](byzantine_4.png)
+
+### Omröstningar
+
+Det finns olika typer: 
+
+* Majority voting
+* K-plurality voting
+
+Ofta använder man en central koordinator. För att välja koordinator: 
+
+* Bully algorithm
+
+#### Bully algorithm
+
+![Bully Algorithm](bully_alg.png)
+
+**The best case:** the process with the second highest identifier notices the coordinator’s failure. It can immediately select itself and then send n-2 coordinator messages.
+**Theworstcase:** The process with the lowest identifier initiates the election - It sends n-1 election messages to processes which themselves initiate each one an election ⇒ O(n2) messages.
+
+#### Bully voting
+
+
+#### Majority voting
+
+![Majority voting picture](majority_voting.png)
+
+#### K-plurality voting
+
+bla
 
 ----------------
 

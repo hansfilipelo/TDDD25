@@ -119,11 +119,11 @@ Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuera
 
 En replica manager (RM) nummrerar sina requests enligt: 
 
-**cuid(RM<sub>i</sub>,r) = max(SEEN<sub>i</sub>,ACCEPT<sub>i</sub>) + 1 + i/N**
+$$ cuid(RM\_{i},r) = max(SEEN\_{i},ACCEPT\_{i}) + 1 + i/N $$
 
 En front end (FE) får sedan requests från alla RMs och numrerar dessa enligt: 
 
-**uid(r) = max<sub>i∈{1 ...N}</sub>(cuid(RM<sub>i</sub>,r))**
+$$ uid(r) = max\_{i∈{1 ...N}}(cuid(RM\_{i},r))$$
 
 
 
@@ -143,7 +143,7 @@ Man kan aldrig ställa bak en klocka - bara sakta ner den.
 
 Sätt tiden genom tt beräkna:
 
-**T<sub>maxRec</sub> - T<sub>minRec</sub> = (T<sub>1</sub> - T<sub>0</sub>) - 2t<sub>min</sub>** *± (T<sub>1</sub> - T<sub>0</sub>)/2 - t<sub>min</sub>*
+$$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± (T\_{1} - T\_{0})/2 - t\_{min} $$
 
 
 ----------------

@@ -12,7 +12,7 @@ Saker som är transparenta för användaren - alltså ej visas utan hanteras av 
 - Failure transparancy - Applikationen ska upptäcka och hantera sina egna fel utan att meddela användaren.
 - Performance transparancy - Variationer i last ska ej leda till märkbar prestandaförsämring. 
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Arkitekturmodeller
 
@@ -50,7 +50,7 @@ Nackdelar:
 - Thin Clients
 - Mobile Devices
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Interaktionsmodeller
 
@@ -90,7 +90,7 @@ Konsekvenser:
 
 I praktiken används timeouts för asynkrona system - men man behöver ta till fler verktyg för att garantera consistent state (ej ha duplikerade meddelanden, duplikerad exekvering av samma operationer etc). 
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Begreppet tid och vektorklockor i dist system
 
@@ -103,11 +103,11 @@ Garanterar olika händelsers relation till varandra - dock ej att de sker i exak
 
 ### Total ordering
 
-Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). 
+Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). Alla system har samma räkne-id på varenda request. 
 
 #### Central
 
-* Front end (FE) skickar request r till alla Resource Managers (RMs).
+* Front end (FE) skickar request r till alla Replica Managers (RMs).
 * RMs sätter cuid(RM<sub>i</sub>,r) och skickar tillbaka till FE.
 * När FE fått svar från alla RMs så skickar den ett slutgiltigt id för requesten till alla RMs. 
 
@@ -119,7 +119,7 @@ $$ cuid(RM\_{i},r) = max(SEEN\_{i},ACCEPT\_{i}) + 1 + i/N $$
 
 En front end (FE) får sedan requests från alla RMs och numrerar dessa enligt: 
 
-$$ uid(r) = max\_{i∈{1 ...N}}(cuid(RM\_{i},r))$$
+$$ uid(r) = max\_{i inom (1 ...N)}(cuid(RM\_{i},r))$$
 
 
 
@@ -135,7 +135,7 @@ Man kan aldrig ställa bak en klocka - bara sakta ner den.
 - Berkely algorithm
 - Distributed clocks synchronization algorithm
 
-### Christian's algorithm
+#### Christian's algorithm
 
 ![Christian's algorithm picture](christian_alg.png)
 
@@ -145,7 +145,7 @@ $$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± \frac{(T\_{1} - T
 
 Där $t\_{min}$ är lika med minsta överföringstiden för mediet mellan tidsserver och lokala enheten.
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Mutual exclusion
 
@@ -160,7 +160,7 @@ Där $t\_{min}$ är lika med minsta överföringstiden för mediet mellan tidsse
 - Ricart-Agrawala *second* algorithm
 - Token ring algorithm
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Update protocols
 
@@ -215,7 +215,8 @@ På så sätt kan man anpassa systemet efter last.
 
 
 
-----------------
+<div style="page-break-after: always;"></div>
+
 
 ## Felhantering och feltolerans
 
@@ -254,11 +255,8 @@ Ofta använder man en central koordinator. För att välja koordinator:
 
 ![Bully Algorithm](bully_alg.png)
 
-**The best case:** the process with the second highest identifier notices the coordinator’s failure. It can immediately select itself and then send n-2 coordinator messages.
-**Theworstcase:** The process with the lowest identifier initiates the election - It sends n-1 election messages to processes which themselves initiate each one an election ⇒ O(n2) messages.
-
-#### Bully voting
-
+**The best case:** Processen med näst högst ID upptäcker att koordinatorn är borta -> den kan direkt utse sig själv som koordinator och gå skicka ut n-2 stycken coord-meddelanden. 
+**Theworstcase:** Processen med lägst ID upptäcker att koordinatorn är bort och skickar ut valmeddelanden -> den skickar ut n-1 valmeddelanden som i sin tur skickar ut meddelanden uppåt -> O(n^2) meddelanden totalt
 
 #### Majority voting
 
@@ -268,7 +266,7 @@ Ofta använder man en central koordinator. För att välja koordinator:
 
 bla
 
-----------------
+<div style="page-break-after: always;"></div>
 
 ## Middleware
 
@@ -291,3 +289,13 @@ Statisk invokering är då mjukvaran vid kompileringstillfället är medveten om
 #### Dynamisk invokering
 
 Dynamisk invokering sker då klienten vid kompileringstillfället ej vet om vilka interface servern exponerar. Detta ger ett stort overhead då eventuella metoder som kallas vid run-time först måste traversera till servern och sedan ge en respons till klienten. 
+
+#### Semantik och felhantering
+
+**Alternativ 1: "Åtminstone en gång-semantik"**
+The client’s communication module sends repeated requests and waits until the server reboots or it is rebound to a new machine; when it finally receives a reply, it forwards it to the client. When the client got an answer, the RMI has been carried out at least one time, but possibly more.
+
+**Alternativ 2: "Åtminstone en gång-semantik"** 
+The client’s communication module gives up and immediately reports the failure to the client (e.g. by raising an exception) 
+- If the client got an answer, the RMI has been executed exactly once.- If the client got a failure message, the RMI has been carried out at most one time, but possibly not at all.**Alternative 3: "Max en gång-semantik"**
+This is what we would like to have (and what we could achieve for lost messages): the RMI has been carried out exactly one time.However this cannot be guaranteed, in general, for the situation of server crashes.

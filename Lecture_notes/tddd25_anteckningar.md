@@ -151,7 +151,7 @@ Med osäkerheten:
 
 $$±\frac{(T\_{1} - T\_{0})}{2} - t\_{min}$$
 
-In order to improve accuracy, several requests can be issued; the answer with the smallest (T1 - T0) is used to update the clock.
+För att förbättra säkerheten kan flertalet förfrågningar skickas - där man sedan väljer de två med kortast tidsdifferens.
 
 <div style="page-break-after: always;"></div>
 

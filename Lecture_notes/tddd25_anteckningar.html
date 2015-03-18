@@ -1,0 +1,554 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+<title>TDDD25 anteckningar</title>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax:{inlineMath:[['$$$','$$$']]}});</script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<h1>TDDD25 anteckningar</h1>
+
+<h2>Transparens</h2>
+
+<p>Saker som är transparenta för användaren - alltså ej visas utan hanteras av det distribuerade systemet internt.</p>
+
+<ul>
+<li>Access transparency - lokala och externa resurser accessas på samma vis.</li>
+<li>Location transparency - Användare kan ej se var mjuk- och hårdvaruresurser befinner sig. En resurs namn ska ej påvisa detta för att en applikation ska vara distribuerad.</li>
+<li>Migration transparency - En användare kan röra sig från ett ställe till ett annat utan att applikationen ser dem som en ny instans/användare/namn</li>
+<li>Replicaiton transparency - systemet kan göra flera avbilder av data utan att användaren är medveten om detta (i syfte att skala prestanda och eller tillförlitlighet)</li>
+<li>Concurrency transparency - Användare märker ej av andra användare i systemet - även om man accessar samma resurs.</li>
+<li>Failure transparancy - Applikationen ska upptäcka och hantera sina egna fel utan att meddela användaren.</li>
+<li>Performance transparancy - Variationer i last ska ej leda till märkbar prestandaförsämring.</li>
+</ul>
+
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Arkitekturmodeller</h2>
+
+<ul>
+<li>Client-server</li>
+<li>Peer-to-peer</li>
+</ul>
+
+
+<p><strong>Client-server</strong></p>
+
+<p>Fördelar:</p>
+
+<ul>
+<li>Centralisering av tjänsten. Ger en enklare managerbar struktur än peer-to-peer</li>
+</ul>
+
+
+<p>Nackdelar:</p>
+
+<ul>
+<li>Känsliga utifall en eller flera servrar går ned. Dessa ÄR applikationen så att säga.</li>
+<li>Skalar sämre än peer-to-peer då applikationslasten inte fördelas över lika många noder.</li>
+</ul>
+
+
+<p><strong>Peer-to-peer</strong></p>
+
+<p>Fördelar:</p>
+
+<ul>
+<li>Skalar väldigt bra med många användare då varje individuell användare ökar kapaciteten i systemet.</li>
+<li>Ger otrolig redundans då många noder kan leverera samma data.</li>
+</ul>
+
+
+<p>Nackdelar:</p>
+
+<ul>
+<li>Hög komplexitet</li>
+</ul>
+
+
+<h3>Olika varianter av de två:</h3>
+
+<ul>
+<li>Proxy server</li>
+<li>Mobile Code</li>
+<li>Mobile Agents</li>
+<li>Network Computers</li>
+<li>Thin Clients</li>
+<li>Mobile Devices</li>
+</ul>
+
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Interaktionsmodeller</h2>
+
+<h3>Synkrona och asynkrona system</h3>
+
+<p><strong>Synkrona system</strong></p>
+
+<p>Funktioner:</p>
+
+<ul>
+<li>Exekveringstid sker inom givna tidsramar</li>
+<li>Mottagande av meddelanden sker inom given tidsram</li>
+<li>Man känner av maximal tidsskillnad mellan två lokala klockor inom systemet</li>
+</ul>
+
+
+<p>Konsekvenser:</p>
+
+<ul>
+<li>Man använder en, för systemet, globalt uppfattad tid (med precision kopplad till max tillåten/möjlig avdrift)</li>
+<li>Endast synkrona system kan användas för real-time-applikationer</li>
+<li>Man kan använda timeouts för att upptäcka fel i kommunikationslänkar eller processer.</li>
+</ul>
+
+
+<p>Nackdel:</p>
+
+<ul>
+<li>Det är otroligt svårt och kostsamt att implementera synkrona distribuerade system - de flesta systemen är asynkrona.</li>
+</ul>
+
+
+<p><strong>Asynkrona system</strong></p>
+
+<p>Många distribuerade systemen är asynkrona. Detta innebär:</p>
+
+<ul>
+<li>Ingen gräns för övre och undre exekveringstid.</li>
+<li>Ingen övre gräns för meddelande-delay.</li>
+<li>Ingen gräns för avdrift mellan logiska klockor.</li>
+</ul>
+
+
+<p>Konsekvenser:</p>
+
+<ul>
+<li>Det finns ingen, för systemet, global tid. All tidberäkning sker med hjälp av logiska klockor.</li>
+<li>Dessa system är ej förutsägbara när det kommer till timing.</li>
+<li>Timeouts kan ej användas.</li>
+</ul>
+
+
+<p>I praktiken används timeouts för asynkrona system - men man behöver ta till fler verktyg för att garantera consistent state (ej ha duplikerade meddelanden, duplikerad exekvering av samma operationer etc).</p>
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Begreppet tid och vektorklockor i dist system</h2>
+
+<ul>
+<li>Totally ordered (fullständig ordning)</li>
+<li>Causally ordered (kausalt ordnat system)</li>
+</ul>
+
+
+<h3>Kausalt</h3>
+
+<p>Garanterar olika händelsers relation till varandra - dock ej att de sker i exakt ordning tidsmässigt. Använder oftast vektorklockor (flerdimensionella Lamportklockor!)</p>
+
+<h3>Total ordering</h3>
+
+<p>Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). Alla system har samma räkne-id på varenda request.</p>
+
+<h4>Central sequencer</h4>
+
+<p><img src="total_order_central_seq.png" alt="Central sequencer" /></p>
+
+<ul>
+<li>Front end (FE) skickar request r till alla Replica Managers (RMs).</li>
+<li>RMs sätter cuid(RM<sub>i</sub>,r) och skickar tillbaka till FE.</li>
+<li>När FE fått svar från alla RMs så skickar den ett slutgiltigt id för requesten till alla RMs.</li>
+</ul>
+
+
+<h4>Distribuerad överenskommelse</h4>
+
+<p><img src="total_order_dist_agree.png" alt="Dist agrre" /></p>
+
+<p>En replica manager (RM) nummrerar sina requests enligt:</p>
+
+<p>$$ cuid(RM_{i},r) = max(SEEN_{i},ACCEPT_{i}) + 1 + i/N $$</p>
+
+<p>En front end (FE) får sedan requests från alla RMs och numrerar dessa enligt:</p>
+
+<p>$$ uid(r) = max_{i inom (1 ...N)}(cuid(RM_{i},r))$$</p>
+
+<h3>Tidsdrift och synkronisering av klockor</h3>
+
+<ul>
+<li>NTP</li>
+</ul>
+
+
+<p>Man kan aldrig ställa bak en klocka - bara sakta ner den.</p>
+
+<p><strong>Algoritmer</strong></p>
+
+<ul>
+<li>Christians algorithm</li>
+<li>Berkely algorithm</li>
+<li>Distributed clocks synchronization algorithm</li>
+</ul>
+
+
+<h4>Christian's algorithm</h4>
+
+<p><img src="christian_alg.png" alt="Christian's algorithm picture" /></p>
+
+<p>Sätt tiden genom tt beräkna:</p>
+
+<p>$$T_{maxRec} - T_{minRec} = (T_{1} - T_{0}) - 2t_{min} ± \frac{(T_{1} - T_{0})}{2} - t_{min} $$</p>
+
+<p>Där $t_{min}$ är lika med minsta överföringstiden för mediet mellan tidsserver och lokala enheten.</p>
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Mutual exclusion</h2>
+
+<p><strong>Utan token</strong></p>
+
+<ul>
+<li>Central coordinator algorithm</li>
+<li>Ricart-Agrawala algorithm</li>
+<li>K-plurality voting</li>
+</ul>
+
+
+<p><strong>Med token</strong></p>
+
+<ul>
+<li>Ricart-Agrawala <em>second</em> algorithm</li>
+<li>Token ring algorithm</li>
+</ul>
+
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Update protocols</h2>
+
+<p>Tänkbara:</p>
+
+<ul>
+<li>read-any - write-all protocol</li>
+<li>available-copies protocol</li>
+<li>primary-copy protocol</li>
+<li>voting protocols</li>
+</ul>
+
+
+<h3>Read-any - write-all</h3>
+
+<p>Läs från vilken som - skriv till samtliga kopior. Snabbt för läsning - inte så snabbt att skriva.</p>
+
+<h3>Available-copies protocol</h3>
+
+<p>Läs från en - skriv till alla tillgängliga. Efter fel måste en instans först synda med en annan instans innan den kan acceptera requests från användare igen.</p>
+
+<h3>Primary-copy protocol</h3>
+
+<p>En primär kopia som man använder förskrämningar - resten utför läsoperationer (och läser in senaste versionen från primary copy).</p>
+
+<h3>Voting protocols</h3>
+
+<p><img src="r_w_qorum.png" alt="Read/Write qorum" /></p>
+
+<p>r = nr samtidiga som säger läs<br/>
+w = nr samtidiga som säger write<br/>
+n = antal totala noder</p>
+
+<p>För att undvika två samtidiga skrivningar -> <strong>w > n/2</strong><br/>
+För att se till att alla som läser får senaste kopian -> <strong>r + w > n</strong></p>
+
+<p><strong>Vid läsning</strong></p>
+
+<ul>
+<li>Lås "r" kopior.</li>
+<li>Välj den med högst versionsnummer.</li>
+<li>Läs vald kopia.</li>
+</ul>
+
+
+<p><strong>Vid skrivning</strong></p>
+
+<ul>
+<li>Lås w kopior</li>
+<li>Välj den med högst versionsnummer</li>
+<li>Skriv till denna (om ex x = x+1 behöver detta göras)</li>
+<li>Skriv vald version till alla w kopior</li>
+</ul>
+
+
+<p>System med lågt r -> snabba läsningar<br/>
+System med högre r -> snabba skrivningar</p>
+
+<p>På så sätt kan man anpassa systemet efter last.</p>
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Felhantering och feltolerans</h2>
+
+<p>Hårdvaruredundans
+Mjukvaruredundans
+Informationsredundans - felkoder / redundant dataöverföring
+Tidsredundans - extra tid för att kunna utföra redundanta/felkontrollerande operationer</p>
+
+<h3>Felmodeller</h3>
+
+<p>Typer av fel:</p>
+
+<ul>
+<li>Omission faults - Då en process misslyckas med sin uppgift. Exempelvis att ngt går fel men att ändå svara på ett korrekt sätt.</li>
+<li>Arbitrary faults - När en delkomponent lämnar ett felaktigt svar eller inte svarar alls.</li>
+<li>Timing faults - När en delkomponent svarar utanför givna tidsramar.</li>
+</ul>
+
+
+<h3>Forward vs backward recovery</h3>
+
+<p>Bakåt - spara tillstånd och återgå till detta.
+Framåt - hårdavaru eller mjukvaruredundsns.</p>
+
+<h3>Byzantinsk felmodell</h3>
+
+<p>För att åstadkomma distribuerad överenskommelse med k-redundans (k st felaktiga enheter) krävs 3k+1 enheter.</p>
+
+<p><img src="byzantine_4.png" alt="Generals" /></p>
+
+<h3>Omröstningar</h3>
+
+<p>Det finns olika typer:</p>
+
+<ul>
+<li>Majority voting</li>
+<li>K-plurality voting</li>
+</ul>
+
+
+<p>Ofta använder man en central koordinator. För att välja koordinator:</p>
+
+<ul>
+<li>Bully algorithm</li>
+</ul>
+
+
+<h4>Bully algorithm</h4>
+
+<p><img src="bully_alg.png" alt="Bully Algorithm" /></p>
+
+<p><strong>The best case:</strong> Processen med näst högst ID upptäcker att koordinatorn är borta -> den kan direkt utse sig själv som koordinator och gå skicka ut n-2 stycken coord-meddelanden.</p>
+
+<p><strong>Theworstcase:</strong> Processen med lägst ID upptäcker att koordinatorn är bort och skickar ut valmeddelanden -> den skickar ut n-1 valmeddelanden som i sin tur skickar ut meddelanden uppåt -> O(n^2) meddelanden totalt</p>
+
+<h4>Majority voting</h4>
+
+<p><img src="majority_voting.png" alt="Majority voting picture" /></p>
+
+<h4>K-plurality voting</h4>
+
+<p>Som majority voting men det vinnande alternativet behöver inte ha majoritet - bara flest röster.</p>
+
+<div style="page-break-after: always;"></div>
+
+
+<h2>Middleware</h2>
+
+<p><strong>Object adapter</strong></p>
+
+<p>Objektadaptern är det primära interfacet mellan serverobjektet och ORB. Denna håller koll på referensräkning och livstid för objekt och dess referenser. Objektens referenser genereras utifrån specifikationen av <strong>Interface Definition Language</strong> som skapas av programmeraren.</p>
+
+<h3>Interface Definition Language (IDL)</h3>
+
+<p>Ett interface som specificerar API:t som klienter kan använda för att utföra operationer på/med hjälp av objekt.</p>
+
+<h3>Remote method invocation</h3>
+
+<p><img src="rmi_call.png" alt="RMI call" /></p>
+
+<h4>Statisk invokering</h4>
+
+<p>Statisk invokering är då mjukvaran vid kompileringstillfället är medveten om vilka interface servern exponerar. Detta ger ett litet overhead.</p>
+
+<h4>Dynamisk invokering</h4>
+
+<p>Dynamisk invokering sker då klienten vid kompileringstillfället ej vet om vilka interface servern exponerar. Detta ger ett stort overhead då eventuella metoder som kallas vid run-time först måste traversera till servern och sedan ge en respons till klienten.</p>
+
+<h4>Semantik och felhantering</h4>
+
+<p><strong>Alternativ 1: "Åtminstone en gång-semantik"</strong></p>
+
+<p>The client’s communication module sends repeated requests and waits until the server reboots or it is rebound to a new machine; when it finally receives a reply, it forwards it to the client. When the client got an answer, the RMI has been carried out at least one time, but possibly more.</p>
+
+<p><strong>Alternativ 2: "Åtminstone en gång-semantik"</strong></p>
+
+<p>The client’s communication module gives up and immediately reports the failure to the client (e.g. by raising an exception)</p>
+
+<ul>
+<li>If the client got an answer, the RMI has been executed exactly once.</li>
+<li>If the client got a failure message, the RMI has been carried out at most one time, but possibly not at all.</li>
+</ul>
+
+
+<p><strong>Alternative 3: "Max en gång-semantik"</strong></p>
+
+<p>This is what we would like to have (and what we could achieve for lost messages): the RMI has been carried out exactly one time.
+However this cannot be guaranteed, in general, for the situation of server crashes.</p>
+</body>
+</html>

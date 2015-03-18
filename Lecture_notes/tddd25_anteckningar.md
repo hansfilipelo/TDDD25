@@ -105,13 +105,17 @@ Garanterar olika händelsers relation till varandra - dock ej att de sker i exak
 
 Kan utföras m h a en centraliserad klocka/räknare, alternativt via distribuerad överenskommelse. Garanterar inte kausalitet (att event händer i rätt ordning). Alla system har samma räkne-id på varenda request. 
 
-#### Central
+#### Central sequencer
+
+![Central sequencer](total_order_central_seq.png)
 
 * Front end (FE) skickar request r till alla Replica Managers (RMs).
 * RMs sätter cuid(RM<sub>i</sub>,r) och skickar tillbaka till FE.
 * När FE fått svar från alla RMs så skickar den ett slutgiltigt id för requesten till alla RMs. 
 
 #### Distribuerad överenskommelse
+
+![Dist agrre](total_order_dist_agree.png)
 
 En replica manager (RM) nummrerar sina requests enligt: 
 
@@ -139,11 +143,15 @@ Man kan aldrig ställa bak en klocka - bara sakta ner den.
 
 ![Christian's algorithm picture](christian_alg.png)
 
-Sätt tiden genom tt beräkna:
+Sätt klockan, C, med: 
 
-$$T\_{maxRec} - T\_{minRec} = (T\_{1} - T\_{0}) - 2t\_{min} ± \frac{(T\_{1} - T\_{0})}{2} - t\_{min} $$
+$$ T\_{rec} = C + T\_{trans} = C + \frac{(T\_{1} - T\_{0})}{2} $$
 
-Där $t\_{min}$ är lika med minsta överföringstiden för mediet mellan tidsserver och lokala enheten.
+Med osäkerheten:
+
+$$±\frac{(T\_{1} - T\_{0})}{2} - t\_{min}$$
+
+In order to improve accuracy, several requests can be issued; the answer with the smallest (T1 - T0) is used to update the clock.
 
 <div style="page-break-after: always;"></div>
 
@@ -220,6 +228,11 @@ På så sätt kan man anpassa systemet efter last.
 
 ## Felhantering och feltolerans
 
+Hårdvaruredundans
+Mjukvaruredundans
+Informationsredundans - felkoder / redundant dataöverföring
+Tidsredundans - extra tid för att kunna utföra redundanta/felkontrollerande operationer
+
 ### Felmodeller
 
 Typer av fel: 
@@ -264,7 +277,7 @@ Ofta använder man en central koordinator. För att välja koordinator:
 
 #### K-plurality voting
 
-bla
+Som majority voting men det vinnande alternativet behöver inte ha majoritet - bara flest röster. 
 
 <div style="page-break-after: always;"></div>
 

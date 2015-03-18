@@ -90,14 +90,12 @@ class DistributedLock(object):
         """
         
         if self.peer_list.get_peers():
-            print("Not first peer...")
             self.token = {self.owner.id: self.time}
             self.request = {self.owner.id: self.time}
             for pid in self.peer_list.get_peers().keys():
                 self.token.update({pid: 0})
                 self.request.update({pid: 0})
         else:
-            print("First peer!")
             self.token = {self.owner.id: self.time}
             self.state = TOKEN_PRESENT
         pass
@@ -151,7 +149,6 @@ class DistributedLock(object):
 
     def release(self):
         """Called when this object releases the lock."""
-        print("Releasing the lock...")
         
         self.state = TOKEN_PRESENT
         
@@ -167,7 +164,6 @@ class DistributedLock(object):
     def request_token(self, time, pid):
         """Called when some other object requests the token from us."""
         
-        print("Got request.")
         
         self.request[pid] = max(self.request[pid],time)
         

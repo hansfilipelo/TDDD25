@@ -89,9 +89,7 @@ class PeerList(object):
 
         self.lock.acquire()
         try:
-            print("In unreg peer")
             del self.peers[pid]
-            print("Peer %s has left the system.", pid)
         except:
             print("Failed to destroy peer %s", pid)
             raise Exception("No peer with id: '{}'".format(pid))

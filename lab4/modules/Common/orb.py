@@ -84,7 +84,6 @@ class Request(threading.Thread):
     def run(self):
         
         try:
-            print("Request initiated")
             requestData = loadRequest(self.conn.readline())
             
             if requestData.get(_ARGS_) == []:
@@ -92,10 +91,6 @@ class Request(threading.Thread):
                     self.conn.flush()
                     return
             
-            print("Method ", end="")
-            print(requestData[_METHOD_])
-            print("Args: ", end="")
-            print(requestData[_ARGS_])
             self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(*requestData[_ARGS_])) + '\n')
             
             self.conn.flush()

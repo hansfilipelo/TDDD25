@@ -87,9 +87,7 @@ class Request(threading.Thread):
             print("Request initiated")
             requestData = loadRequest(self.conn.readline())
             
-            print("1")
             if requestData.get(_ARGS_) == []:
-                    print("2")
                     self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))()) + '\n')
                     self.conn.flush()
                     return
@@ -99,7 +97,6 @@ class Request(threading.Thread):
             print("Args: ", end="")
             print(requestData[_ARGS_])
             self.conn.write(createResultReply(getattr(self.owner, (requestData[_METHOD_]))(*requestData[_ARGS_])) + '\n')
-            print("3")
             
             self.conn.flush()
         except Exception as e:

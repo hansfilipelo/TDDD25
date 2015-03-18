@@ -9,6 +9,7 @@
 
 """Package for handling a list of objects of the same type as a given one."""
 
+import time
 import threading
 from Common import orb
 from Common.objectType import object_type
@@ -52,15 +53,17 @@ class PeerList(object):
 
     def destroy(self):
         """Unregister this peer from all others in the list."""
-
+        
+        
         self.lock.acquire()
         try:
             
             
             for peer in self.peers:
                 try:
-                    self.peers[peer[0]].unregister_peer(self.owner.id, self.owner.address)
+                    self.peers[peer].unregister_peer(self.owner.id)
                 except:
+                    print("Cant'reach peer with ID %s", peer)
                     # If we can't reach the other peer we can't do nothing later either, because this peer will be destroyed anyways
                     continue
         

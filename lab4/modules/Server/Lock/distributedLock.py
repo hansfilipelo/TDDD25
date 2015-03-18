@@ -107,7 +107,6 @@ class DistributedLock(object):
 
         If we have the token (TOKEN_PRESENT or TOKEN_HELD), we must
         give it to someone else.
-
         """
         
         if self.state in list((TOKEN_PRESENT, TOKEN_HELD)) and self.peer_list.get_peers():
@@ -115,7 +114,7 @@ class DistributedLock(object):
             for key in list(self.peer_list.get_peers().keys()):
                 self.peer_list.peer(key).obtain_token(self._prepare(self.token))
                 break
-
+        
     def register_peer(self, pid):
         """Called when a new peer joins the system."""
         

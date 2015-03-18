@@ -14,4 +14,4 @@ object_StudentId) so as to avoid conflicts.
 
 """
 
-object_type = "ServerOverloaded_11"
+object_type = "hanel742_1"

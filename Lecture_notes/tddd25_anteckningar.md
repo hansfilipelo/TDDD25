@@ -14,6 +14,8 @@ Saker som är transparenta för användaren - alltså ej visas utan hanteras av 
 
 <div style="page-break-after: always;"></div>
 
+--------------
+
 ## Arkitekturmodeller
 
 - Client-server
@@ -51,6 +53,8 @@ Nackdelar:
 - Mobile Devices
 
 <div style="page-break-after: always;"></div>
+
+--------------
 
 ## Interaktionsmodeller
 
@@ -92,6 +96,8 @@ I praktiken används timeouts för asynkrona system - men man behöver ta till f
 
 <div style="page-break-after: always;"></div>
 
+--------------
+
 ## Begreppet tid och vektorklockor i dist system
 
 - Totally ordered (fullständig ordning)
@@ -129,6 +135,19 @@ $$ uid(r) = max\_{i inom (1 ...N)}(cuid(RM\_{i},r))$$
 
 ### Tidsdrift och synkronisering av klockor
 
+Man kan aldrig synkronisera klockorna perfekt. Konvergensfunktionen (stora phi) anger avdrift direkt vid synk. Precision ges av: 
+
+$$ \phi + S\_{max} \leq Precision $$
+$$ {\delta}t = (Precision - \phi)/2\rho $$
+
+Där $\rho$ är tidsdrift för en klocka. 
+
+Om vi ska garantera en viss precision så behöver vi synka såhär ofta: 
+
+$${\delta}t \leq S\_{max}/2\rho = Precision/2\rho $$
+
+-----------------
+
 - NTP
 
 Man kan aldrig ställa bak en klocka - bara sakta ner den.
@@ -151,9 +170,11 @@ Med osäkerheten:
 
 $$±\frac{(T\_{1} - T\_{0})}{2} - t\_{min}$$
 
-För att förbättra säkerheten kan flertalet förfrågningar skickas - där man sedan väljer de två med kortast tidsdifferens.
+Där $t\_{min}$ är minimala tiden för en överföring i det givna kommunikationsmedlet. För att förbättra säkerheten kan flertalet förfrågningar skickas - där man sedan väljer de två med kortast tidsdifferens.
 
 <div style="page-break-after: always;"></div>
+
+--------------
 
 ## Mutual exclusion
 
@@ -169,6 +190,8 @@ För att förbättra säkerheten kan flertalet förfrågningar skickas - där ma
 - Token ring algorithm
 
 <div style="page-break-after: always;"></div>
+
+--------------
 
 ## Update protocols
 
@@ -225,6 +248,7 @@ På så sätt kan man anpassa systemet efter last.
 
 <div style="page-break-after: always;"></div>
 
+--------------
 
 ## Felhantering och feltolerans
 
@@ -280,6 +304,8 @@ Ofta använder man en central koordinator. För att välja koordinator:
 Som majority voting men det vinnande alternativet behöver inte ha majoritet - bara flest röster. 
 
 <div style="page-break-after: always;"></div>
+
+--------------
 
 ## Middleware
 

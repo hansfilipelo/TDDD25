@@ -78,7 +78,7 @@ class Server(orb.Peer):
         self.peer_list = PeerList(self)
         self.distributed_lock = DistributedLock(self, self.peer_list)
         self.drwlock = DistributedReadWriteLock(self.distributed_lock)
-        self.db = database.Database(db_file)
+        self.db = database.Database(db_file,self.drwlock)
         self.dispatched_calls = {
             "display_peers":      self.peer_list.display_peers,
             "acquire":            self.distributed_lock.acquire,
@@ -112,10 +112,8 @@ class Server(orb.Peer):
     def read(self):
         """Read a fortune from the database."""
 
-        #
-        # Your code here.
-        #
-        pass
+        
+        return self.db.read()
 
     def write(self, fortune):
         """Write a fortune to the database.
@@ -127,10 +125,7 @@ class Server(orb.Peer):
 
         """
 
-        #
-        # Your code here.
-        #
-        pass
+        self.db.write(fortune)
 
     def write_no_lock(self, fortune):
         """Write a fortune to the database.
@@ -140,7 +135,7 @@ class Server(orb.Peer):
 
         """
 
-        self.db.write(fortune)
+        self.db.write_no_lock(fortune)
 
     def register_peer(self, pid, paddr):
         """Register a server peer in this server's peer list."""

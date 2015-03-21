@@ -35,8 +35,7 @@ class DistributedReadWriteLock(readWriteLock.ReadWriteLock):
         to the rest of the peers.
 
         """
-
-        self.distributed_lock.aquire()
+        self.distributed_lock.acquire()
         self.writer_lock.acquire()
         
 

@@ -141,6 +141,9 @@ class DistributedLock(object):
                 except Exception as e:
                     print(type(e).__name__ + " - Arguments: ", end="")
                     print(e.args)
+            while self.state != TOKEN_HELD:
+                pass
+            
         if self.state == TOKEN_PRESENT:
             self.obtain_token(self._prepare(self.token))
         

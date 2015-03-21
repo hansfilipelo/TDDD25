@@ -100,7 +100,7 @@ class Server(orb.Peer):
 
     def __getattr__(self, attr):
         """Forward calls are dispatched here."""
-
+        
         if attr in self.dispatched_calls:
             return self.dispatched_calls[attr]
         else:
@@ -122,10 +122,22 @@ class Server(orb.Peer):
         the fortune as well. Call their 'write_no_lock' as they cannot
         atempt to obtain the distributed lock when writting their
         copies.
-
+        
         """
-
+        
+        self.drwlock.write_acquire()
+        
         self.db.write(fortune)
+        
+        for id in self.peer_list.get_peers():
+            try:
+                self.peer_list.get_peers()[id].write_no_lock(fortune)
+            except Exception as e:
+                print(type(e).__name__ + " - Arguments: ", end="")
+                print(e.args)
+        
+        self.drwlock.write_release()
+        return "Wrote fortune to database."
 
     def write_no_lock(self, fortune):
         """Write a fortune to the database.

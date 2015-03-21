@@ -7,6 +7,8 @@
 # Copyright 2012 Linkoping University
 # -----------------------------------------------------------------------------
 
+import random
+
 """Module for the distributed mutual exclusion implementation.
 
 This implementation is based on the second Rikard-Agravara algorithm.
@@ -63,7 +65,7 @@ class DistributedLock(object):
         """Prepare the token to be sent as a JSON message.
 
         This step is necessary because in the JSON standard, the key to
-        a dictionary must be a string whild in the token the key is
+        a dictionary must be a string while in the token the key is
         integer.
         """
         return list(token.items())
@@ -76,7 +78,7 @@ class DistributedLock(object):
 
     def initialize(self):
         """ Initialize the state, request, and token dicts of the lock.
-
+        
         Since the state of the distributed lock is linked with the
         number of peers among which the lock is distributed, we can
         utilize the lock of peer_list to protect the state of the
@@ -84,11 +86,18 @@ class DistributedLock(object):
 
         NOTE: peer_list must already be populated when this
         function is called.
-
+        
         """
-        #
-        # Your code here.
-        #
+        
+        if self.peer_list.get_peers():
+            self.token = {self.owner.id: self.time}
+            self.request = {self.owner.id: self.time}
+            for pid in self.peer_list.get_peers().keys():
+                self.token.update({pid: 0})
+                self.request.update({pid: 0})
+        else:
+            self.token = {self.owner.id: self.time}
+            self.state = TOKEN_PRESENT
         pass
 
     def destroy(self):
@@ -96,56 +105,85 @@ class DistributedLock(object):
 
         If we have the token (TOKEN_PRESENT or TOKEN_HELD), we must
         give it to someone else.
-
         """
-        #
-        # Your code here.
-        #
-        pass
-
+        
+        if self.state in list((TOKEN_PRESENT, TOKEN_HELD)) and self.peer_list.get_peers():
+            self.state = NO_TOKEN
+            for key in list(self.peer_list.get_peers().keys()):
+                self.peer_list.peer(key).obtain_token(self._prepare(self.token))
+                break
+        
     def register_peer(self, pid):
         """Called when a new peer joins the system."""
-        #
-        # Your code here.
-        #
-        pass
+        
+        self.token[pid] = 0
+        self.request[pid] = 0
+        
 
     def unregister_peer(self, pid):
         """Called when a peer leaves the system."""
-        #
-        # Your code here.
-        #
-        pass
+        
+        del self.token[pid]
+        del self.request[pid]
+        
 
     def acquire(self):
         """Called when this object tries to acquire the lock."""
         print("Trying to acquire the lock...")
-        #
-        # Your code here.
-        #
+        
+        self.time = self.time + 1
+        
+        if self.state == NO_TOKEN:
+            for id in self.peer_list.get_peers():
+                print("Requesting token from id: " + str(id))
+                try:
+                    self.peer_list.get_peers()[id].request_token(self.time, self.owner.id)
+                except Exception as e:
+                    print(type(e).__name__ + " - Arguments: ", end="")
+                    print(e.args)
+        if self.state == TOKEN_PRESENT:
+            self.obtain_token(self._prepare(self.token))
+        
         pass
+        
 
     def release(self):
         """Called when this object releases the lock."""
-        print("Releasing the lock...")
-        #
-        # Your code here.
-        #
-        pass
+        
+        self.state = TOKEN_PRESENT
+        
+        for id in self.peer_list.get_peers():
+            if self.request[id] > self.token[id]:
+                self.state = NO_TOKEN
+                self.token[self.owner.id] = self.time
+                self.peer_list.get_peers()[id].obtain_token(self._prepare(self.token))
+                break
+            
+        
 
     def request_token(self, time, pid):
         """Called when some other object requests the token from us."""
-        #
-        # Your code here.
-        #
-        pass
+        
+        
+        self.request[pid] = max(self.request[pid],time)
+        
+        if self.state == TOKEN_PRESENT and time > self.token[pid]:
+            self.peer_list.get_peers()[pid].obtain_token(self._prepare(self.token))
+            self.state = NO_TOKEN
+        
+        
 
     def obtain_token(self, token):
         """Called when some other object is giving us the token."""
         print("Receiving the token...")
-        #
-        # Your code here.
-        #
+        
+        self.token = self._unprepare(token)
+        if self.time > self.token[self.owner.id]:
+            self.token[self.owner.id] = self.time
+            self.state = TOKEN_HELD
+        else:
+            self.state = TOKEN_PRESENT
+        
         pass
 
     def display_status(self):

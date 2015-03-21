@@ -9,8 +9,10 @@
 
 """Package for handling a list of objects of the same type as a given one."""
 
+import time
 import threading
 from Common import orb
+from Common.objectType import object_type
 
 
 class PeerList(object):
@@ -33,25 +35,38 @@ class PeerList(object):
         object has been registered with the name service.
 
         """
-
         self.lock.acquire()
         try:
-            #
-            # Your code here.
-            #
-            pass
+
+            for peerInfo in self.owner.name_service._rmi("require_all", object_type):
+                if peerInfo[0] < self.owner.id:
+                    try:
+                        # We only add the peers to the list that we can reach them and register them
+                        serverPeer = orb.Stub(tuple(peerInfo[1]))
+                        serverPeer.register_peer(self.owner.id, self.owner.address)
+                        self.peers[peerInfo[0]] = serverPeer
+                        print("success to register to id: " + str(peerInfo[0]) + " added to peerList")
+                    except:
+                        print("failed  to register to id: " + str(peerInfo[0]))
         finally:
             self.lock.release()
 
     def destroy(self):
         """Unregister this peer from all others in the list."""
-
+        
+        
         self.lock.acquire()
         try:
-            #
-            # Your code here.
-            #
-            pass
+            
+            
+            for peer in self.peers:
+                try:
+                    self.peers[peer].unregister_peer(self.owner.id)
+                except:
+                    print("Cant'reach peer with ID %s", peer)
+                    # If we can't reach the other peer we can't do nothing later either, because this peer will be destroyed anyways
+                    continue
+        
         finally:
             self.lock.release()
 
@@ -74,11 +89,10 @@ class PeerList(object):
 
         self.lock.acquire()
         try:
-            if pid in self.peers:
-                del self.peers[pid]
-                print("Peer {} has left the system.".format(pid))
-            else:
-                raise Exception("No peer with id: '{}'".format(pid))
+            del self.peers[pid]
+        except:
+            print("Failed to destroy peer %s", pid)
+            raise Exception("No peer with id: '{}'".format(pid))
         finally:
             self.lock.release()
 

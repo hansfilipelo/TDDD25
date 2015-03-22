@@ -10,7 +10,8 @@
 #"""Implementation of a simple database class."""
 
 import random
-from Server.Lock.readWriteLock import ReadWriteLock
+import sys
+from Server.Lock.distributedReadWriteLock import DistributedReadWriteLock
 from Common.protocols_utilities import DatabaseError
 
 class Database(object):
@@ -19,8 +20,8 @@ class Database(object):
     rand=0
     rwLock = ""
     
-    def __init__(self, db_file):
-        self.rwLock = ReadWriteLock()
+    def __init__(self, db_file, rwLock):
+        self.rwLock = rwLock
         self.db_file = db_file
         
         readFile = open(self.db_file)
@@ -48,21 +49,23 @@ class Database(object):
             raise DatabaseError()
     
     def write(self, fortune):
-        
         try:
-            self.rwLock.write_acquire()
+            self.dataArray.append(fortune)
             
-            try:
-                self.dataArray.append(fortune)
-                
-                writeFile=open(self.db_file,"a")
-                writeFile.write(fortune + "\n%\n")
-                writeFile.close()
-                
-                self.rwLock.write_release()
-                return "Wrote fortune to database."
-            except:
-                self.rwLock.write_release()
-                raise DatabaseError()
+            writeFile=open(self.db_file,"a")
+            writeFile.write(fortune + "\n%\n")
+            writeFile.close()
+            
+        except Exception as e:
+            self.rwLock.write_release()
+            raise getattr(sys.modules[__name__], type(e).__name__)(e.args)
+            
+    def write_no_lock(self,fortune):
+        try:
+            self.dataArray.append(fortune)
+            
+            writeFile=open(self.db_file,"a")
+            writeFile.write(fortune + "\n%\n")
+            writeFile.close()
         except:
-            raise DatabaseError()
+            raise getattr(sys.modules[__name__], type(e).__name__)(*e.args)

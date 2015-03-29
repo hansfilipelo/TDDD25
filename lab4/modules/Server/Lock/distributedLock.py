@@ -89,7 +89,7 @@ class DistributedLock(object):
         
         """
         
-        if self.peer_list.get_peers():
+        if self.peer_list.get_peers() and min(self.peer_list.get_peers()) != self.owner.id:
             self.token = {self.owner.id: self.time}
             self.request = {self.owner.id: self.time}
             for pid in self.peer_list.get_peers().keys():
@@ -141,6 +141,7 @@ class DistributedLock(object):
                 except Exception as e:
                     print(type(e).__name__ + " - Arguments: ", end="")
                     print(e.args)
+                    
         if self.state == TOKEN_PRESENT:
             self.obtain_token(self._prepare(self.token))
         

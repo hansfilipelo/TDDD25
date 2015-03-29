@@ -35,6 +35,15 @@ class DistributedReadWriteLock(readWriteLock.ReadWriteLock):
         to the rest of the peers.
 
         """
+        
+        """
+        
+        We spoke to you (Ivan Ukhov) about this particular function. You said that there's 
+        a newer version of the given code that mentions some problems with this function and gives some leads to solution. 
+        We discussed that by switching the order of writer_lock and distributed_lock we prevent multiple 
+        local threads to get the dirstibuted_lock-token at the same time.  
+        
+        """
         self.writer_lock.acquire()
         self.distributed_lock.acquire()
         

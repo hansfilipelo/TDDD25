@@ -108,10 +108,14 @@ class DistributedLock(object):
         """
         
         if self.state in list((TOKEN_PRESENT, TOKEN_HELD)) and self.peer_list.get_peers():
-            self.state = NO_TOKEN
-            for key in list(self.peer_list.get_peers().keys()):
-                self.peer_list.peer(key).obtain_token(self._prepare(self.token))
-                break
+            
+            self.release()
+            
+            if self.state != NO_TOKEN:
+                for key in list(self.peer_list.get_peers().keys()):
+                    self.peer_list.peer(key).obtain_token(self._prepare(self.token))
+                    self.state = NO_TOKEN
+                    break
         
     def register_peer(self, pid):
         """Called when a new peer joins the system."""

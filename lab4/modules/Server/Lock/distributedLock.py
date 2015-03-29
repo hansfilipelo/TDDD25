@@ -167,7 +167,25 @@ class DistributedLock(object):
         
         self.state = TOKEN_PRESENT
         
-        for id in sorted(self.peer_list.get_peers()):
+        # Create a list that starts with our ID and goes higher, then cycles to lower IDs
+        peers = list(self.peer_list.get_peers().keys())
+        print(peers)
+        frontOfPeers = []
+        backOfPeers = []
+        
+        i = 0
+        stop = len(peers)
+        while i < stop:
+            if peers[i] > self.owner.id:
+                frontOfPeers.append(peers[i])
+            else:
+                backOfPeers.append(peers[i])
+            i = i + 1
+        
+        peers = frontOfPeers + backOfPeers
+        # ------
+        
+        for id in peers:
             if self.request[id] > self.token[id]:
                 self.state = NO_TOKEN
                 self.token[self.owner.id] = self.time
